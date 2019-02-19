@@ -1,0 +1,9 @@
+[
+  {
+    "artifact": "frcJava (in project CompRobot2019)",
+    "target": "roborio",
+    "debugfile": "frcJava_roborio.debugconfig",
+    "project": "CompRobot2019",
+    "language": "java"
+  }
+]
