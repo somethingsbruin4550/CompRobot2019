@@ -28,7 +28,7 @@ public class Driver {
 	
 	public void reset() {
 		chassis.reset();
-		climber.reset();
+		elevator.reset();
 	}
     
 }

@@ -25,8 +25,8 @@ public class Chassis {
 	//Creates the chassis within the chassis 
 	private static Chassis _instance;
 
-	private static final double encoderPerFeet = 119.301;
-	private static final double encoderPerVolt = 990.13; 
+	private static final double encoderPerFeet = 118.647;
+	private static final double encoderPerVolt = 787.222;  
 	//Creates the Chassis
 	private Chassis() {
 		

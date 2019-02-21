@@ -44,7 +44,7 @@ public class Robot extends TimedRobot {
 	double spdMltWheel;
 	boolean isBall;
 	boolean isPressed; 
-
+	double eleHeight; 
 
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -60,6 +60,7 @@ public class Robot extends TimedRobot {
 
 		_driver = new Driver();
 		_driver.reset();
+		_driver.elevator.initPID(0);
 	}
 
 	/**
@@ -108,7 +109,7 @@ public class Robot extends TimedRobot {
 				
 
 			case DEFAULT_AUTO:
-				
+				//_driver.elevator.setElevatorHeight(2.0, 0.020, false);
 				break;
 			default:
 				// Put default auto code here
@@ -123,9 +124,10 @@ public class Robot extends TimedRobot {
 
 	public void teleopInit() {
 		_driver.reset();
-		spdMltWheel = 1.0; 
+		spdMltWheel = 0.5; 
 		isBall = false; 
-		isPressed = false; 
+		isPressed = false;
+		eleHeight = 0;  
 	}
 
 	/**
@@ -175,21 +177,30 @@ public class Robot extends TimedRobot {
 		//DRIVER TWO
 		double spdMlt = 1.0;
 		//Climber Stuff: Checks the bumpers and stuff 
-		if(_driver.oi.getRBC2()){
-			_driver.climber.setClimber(spdMlt);
-		}else if(_driver.oi.getLBC2())
-			_driver.climber.setClimber(-spdMlt);
+		if(_driver.oi.getRBC2())
+			_driver.climber.setClimberFront(spdMlt);
+		else if(_driver.oi.getLBC2())
+			_driver.climber.setClimberFront(-spdMlt);
 		else
-			_driver.climber.setClimber(0);
+			_driver.climber.setClimberFront(0);
+
+		if(_driver.oi.getRB())
+			_driver.climber.setClimberBack(spdMlt);
+		else if(_driver.oi.getLB())
+			_driver.climber.setClimberBack(-spdMlt);
+		else
+			_driver.climber.setClimberBack(0);
 
 		//Elevator stuff 
-		if(_driver.oi.getRTC2() > 0.0){
+		if(_driver.oi.getRTC2() > 0.00){
 			_driver.elevator.setElevator((OI.normalize(Math.pow(_driver.oi.getRTC2(), 3), -1.0, 0, 1.0) * spdMlt));
-		}else if(_driver.oi.getLTC2() > 0.0){
+		}else if(_driver.oi.getLTC2() > 0.00){
 			_driver.elevator.setElevator((OI.normalize(Math.pow(_driver.oi.getLTC2(), 3), -1.0, 0, 1.0) * -spdMlt * 0.7));
 		}else{
-			_driver.elevator.setElevator(0.240698);
+			_driver.elevator.setElevator(0);
+			//0.240698
 		}
+
 
 		//Switch 
 		if(_driver.oi.getStartC2()){
