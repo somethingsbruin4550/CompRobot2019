@@ -118,7 +118,8 @@ public class Robot extends TimedRobot {
 		isBall = false; 
 		isPressed = false;
 		eleHeight = 0; 
-		//led.setDutyCycle(1425); //Sets Blue Breathe
+		///led.setDutyCycle(1425); //Sets Blue Breathe
+		_driver.elevator.setDriverTarget(0);
 		_driver.elevator.initPID();
 		//_driver.chassis.initTurnPID(180, 0.001);
 	}
@@ -244,7 +245,7 @@ public class Robot extends TimedRobot {
 	@Override
 	public void testPeriodic() {
 		//For testing purposes only, this is an infinte loop, similar to teleOP perodic, and autonomousPerodic
-		_driver.elevator.setElevatorHeight(2.0, 0.01, false );
+		//_driver.elevator.setElevatorHeight(2.0, 0.01, false );
 		
 	}
 }

@@ -20,6 +20,8 @@ public class RevLED{
      * Blue: 1935
      * Green: 1885
      * White: 1965
+     * Breathe Blue: 1425
+     * Breathe Gray: 1435
      */
     public void setDutyCycle(int dutyCycle){
         ledController.setPWMRate(dutyCycle);
