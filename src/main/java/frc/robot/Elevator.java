@@ -14,7 +14,7 @@ public class Elevator {
 		
 	double ticsPerFeet;
 
-	double baseHeight;
+	double baseHeight = 1;
 
 	double feed_forward; // forward input to reduce the steady state error
 	double max; // used to clamp the max speed, to slow down the robot
@@ -68,30 +68,35 @@ public class Elevator {
 		encoder.reset();
 	}
 
+	public void setDriverTarget(int level){
+		driverTarget = level;
+	}
+
 	/**
 	 * Converts from level of target to height of target in inches
 	 * @return Target height in inches
 	 */
-	public double getTargetHeight(){
-		double inches = 0;
-		// if(driverTarget == 0)
-		// 	inches = 0;
+	public double levelToFeet(){
+		double feet = 0;
+		if(driverTarget == 0){
+			feet = 0;
+		}
 		if(driverTarget == 1){
-			inches = 27.5; //Center of PORT 1
+			feet = 27.5; //Center of PORT 1
 		}
-		if(driverTarget == 2){
-			inches = 55.5; //Center of PORT 2
+		else if(driverTarget == 2){
+			feet = 55.5; //Center of PORT 2
 		}
-		if(driverTarget == 3){
-			inches = 83.5; //Center of PORT 3
+		else if(driverTarget == 3){
+			feet = 83.5; //Center of PORT 3
 		}
-		return inches;
+		return feet;
 	}
 	
 	/**
 	 * Sets the height of the elevator using a PID loop
-	 * @param height Target height in INCHES
-	 * @param dt Delay between each run of the while loop
+	 * @param height Target height in FEET
+	 * @param dt Delay between each run of the while loop CAN NOT BE 0
 	 * @param debugOn Toggles debug print statements
 	 */
 	public void setElevatorHeight(double height, double dt, boolean debugOn){
@@ -140,7 +145,7 @@ public class Elevator {
 				output = -(max/2); 
 			
 			//After the spd has been fixed, set the speed to the output
-			this.setElevator(output);
+			this.setElevator(-output);
 			
 			//If it's close enough, just break and end the loop 
 			if(error <= error_check) {
@@ -161,7 +166,7 @@ public class Elevator {
 		}
 	}
 
-	public void initPID(double height){
+	public void initPID(){
 		elevatorAdjusting = true;
 		withinTarget = false;
 		
@@ -177,9 +182,8 @@ public class Elevator {
 		Kp = 0.005; // proportional constant
 		Ki = 0; // integral constant
 		Kd = 0;//0.002; // derivative constant
-		goal = height * ticsPerFeet;
+		goal = (levelToFeet()-baseHeight) * ticsPerFeet;
 		
-
 		position = this.getDistance(); // current position in inches/feed, degrees, etc.)
 		error = 0; // our goal is to make the error from the current position zero)
 		error_check = goal/150;
@@ -202,13 +206,13 @@ public class Elevator {
 		previous_error = error;
 		
 		//NORMALIZE: If the spd is bigger than we want, set it to the max, if its less than the -max makes it the negitive max
-		if(output > max)
-			output = max;
-		else if(output < -(max/2)); //Max is /2 because elevator drops faster than it rises
-			output = -(max/2); 
+		// if(output > max)
+		// 	output = max;
+		// else if(output < -(max/2)); //Max is /2 because elevator drops faster than it rises
+		// 	output = -(max/2); 
 		
 		//After the spd has been fixed, set the speed to the output
-		this.setElevator(output);
+		this.setElevator(OI.normalize(output, -0.5, 0, .5));
 		
 		//If it's close enough, just break and end the loop 
 		// if(error <= error_check) {

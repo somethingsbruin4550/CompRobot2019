@@ -64,7 +64,24 @@ public class LimeCam {
         return dist;                                                                                                                            
     }
 
-    
+    public double getVertAngle(){
+        double pixY = py.getDouble(0.0); //gets y coordinante
+        double ny = (1/120) * (119.5 - pixY); //Calculates the normalized pixel y
+        double vpw = 2.0 * Math.tan(54/2); //gets the vertical and horizontal field of view size
+        double vph = 2.0 * Math.tan(41/2); 
+        double y = vph/2 * ny; //calculatrs the y pixel location
+        double ay = Math.atan2(1, y); //gets the y angle
+        return ay; //y angle is vertical angle
+    }
 
+    //returns the horizontal angle of the target from the camera center        
+    public double getHortAngle(){
+        double pixX = px.getDouble(0.0); //gets the x pixel position
+        double nx = (1/160) * (pixX - 159.5); //Calculates the noramlized pixel x
+        double vpw = 2.0 * Math.tan(54/2); //gets the vertical and horizontal field of view size
+        double x = vpw/2 * nx; //calculates the x pixel location
+        double ax = Math.atan2(1, x); //calculates the x angle
+        return ax;
+    }
 
 }

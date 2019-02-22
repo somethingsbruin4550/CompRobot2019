@@ -1,6 +1,7 @@
 package frc.robot;
 
-import frc.robot.RobotMap;
+import frc.robot.*;
+import frc.limelight.*;
 
 import com.kauailabs.navx.frc.AHRS;
 
@@ -20,6 +21,7 @@ public class Chassis {
 	CCTalon _backRight;
 	CCTalon _frontLeft;
 	CCTalon _frontRight;
+	LimeCam limelight;
 	AHRS _gyro;
 
 	//Creates the chassis within the chassis 
@@ -27,6 +29,22 @@ public class Chassis {
 
 	private static final double encoderPerFeet = 118.647;
 	private static final double encoderPerVolt = 787.222;  
+
+	//PID vars for teleop
+	private double feed_forward;
+	private double max;
+	private double previous_error;
+	private double integral;
+	private double derivative;
+	private double Kp; 
+	private double Ki; 
+	private double Kd;
+	private double goal;
+	private double dt;
+	private double position;
+	private double error;
+	private double error_check;
+
 	//Creates the Chassis
 	private Chassis() {
 		
@@ -37,6 +55,7 @@ public class Chassis {
 		_backRight = new CCTalon(RobotMap.BACK_RIGHT, RobotMap.BACK_RIGHT_REVERSE);
 		_frontLeft = new CCTalon(RobotMap.FRONT_LEFT, RobotMap.FRONT_LEFT_REVERSE);
 		_frontRight = new CCTalon(RobotMap.FRONT_RIGHT, RobotMap.FRONT_RIGHT_REVERSE);
+		limelight = new LimeCam();
 
 		//Creates the Encoders
 		//encoder = new Encoder(RobotMap.firstPort, RobotMap.secondPort)
@@ -205,7 +224,66 @@ public class Chassis {
 			}
 		}
 	}
+
+	public void initTurnPID(double angle, double delay) {
+		feed_forward = 0.0234375; // forward input to reduce the steady state error
+		max = 0.275; // used to clamp the max speed, to slow down the robot
+		previous_error = 0; // used to calculate the derivative value
+		integral = 0; // used to carry the sum of the error
+		derivative = 0; // used to calculate the change between our goal and position
+		Kp = 0.005; // proportional constant
+		Ki = 0.002; // integral constant
+		Kd = 0;//0.002; // derivative constant
+		goal = angle;
+		// this is what we want the robot to do: go forward,
+		// turn, elevate, etc to a new position)
+		dt = delay;
+		// this is the wait period for the loop e.g. 1/100s)
+		position = this.getAngle(); // current position in inches/feed, degrees, etc.)
+		error = 0; // our goal is to make the error from the current position zero)
+		error_check = goal/100;		
+	}
 	
+	public void runTurnPID(boolean debug){
+		//Reset the Position
+		position = this.getAngle();
+		//Calculates the error based on how far the robot is from the dist
+		error = goal - position;
+		//Calculates the Integral based on the error, delay, and the previous integral 
+		integral = integral + error * dt; 
+		//Calculates the derivative based on the error and the delay 
+		derivative = (error - previous_error) / dt;
+		//MATH 
+		double output = Kp * error + Ki * integral + Kd * derivative + feed_forward; 
+		//Passes on the error to the previous error
+		previous_error = error;
+		
+		//NORMALIZE: If the spd is bigger than we want, set it to the max, if its less than the -max makes it the negitive max
+		if(output > max)
+			output = max;
+		else if(output < -max)
+			output = -max; 
+		
+		//After the spd has been fixed, set the speed to the output
+		this.driveSpd(output, -output);
+		
+		//If it's close enough, just break and end the loop 
+		if(error <= error_check) {
+			System.out.println("break");
+			//break;
+		}
+		
+		//Delay(Uses dt)
+		Timer.delay(dt);
+		if(debug) {
+			System.out.println("Position: " + position);
+			System.out.println("Error: " + error);
+			System.out.println("Output: " + output);
+			System.out.println("Integral: " + integral);
+			
+		}		
+	}
+
 	//Drives both motors a certain speed
 	public void driveSpd(double lSpeed, double rSpeed) {
 		_frontRight.set(rSpeed);
@@ -238,6 +316,12 @@ public class Chassis {
 	
 	public double getRightEncoder() {
 		return _rightEncoder.getDistance();
+	}
+
+	//turns to the angle of the limelight target using the PID loop
+	public void turnToAngleLimePID() {
+		double targetAngle = limelight.getHortAngle();
+		turnToAngle(targetAngle, 0.001, false);
 	}
 
 }

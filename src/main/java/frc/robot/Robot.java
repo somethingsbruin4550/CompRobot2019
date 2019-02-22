@@ -35,7 +35,6 @@ public class Robot extends TimedRobot {
 	boolean autoRun = false;
 	public String switLocal;
 	final String DEFAULT_AUTO = "Default"; //should capatalize
-	final String PIXY_TEST = "Pixy Test Code";
 
 	String autoSelected;
 	private SendableChooser<String> _chooser;
@@ -46,6 +45,8 @@ public class Robot extends TimedRobot {
 	boolean isPressed; 
 	double eleHeight; 
 
+	//RevLED led = new RevLED();
+
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
@@ -55,12 +56,11 @@ public class Robot extends TimedRobot {
 	public void robotInit() {
 		_chooser = new SendableChooser<String>();
 		_chooser.addDefault("Default Auto", DEFAULT_AUTO);
-		_chooser.addObject("Pixy Camera Test (!WIP!)", PIXY_TEST);
 		SmartDashboard.putData("Auto choices", _chooser);
 
 		_driver = new Driver();
 		_driver.reset();
-		_driver.elevator.initPID(0);
+		//led.initLED();
 	}
 
 	/**
@@ -82,10 +82,11 @@ public class Robot extends TimedRobot {
 		autoSelected = _chooser.getSelected();
 		autoRun = true;
 		_driver.reset();
-		System.out.println("Auto selected: " + autoSelected);
-
+		System.out.println("Auto selected: " + autoSelected); //tvvice
+//>o)
+		//led.setDutyCycle(1435); //Sets Gray Breathe
 	}
-
+//>oo)
 	/**
 	 * This function is called periodically during autonomous
 	 */
@@ -97,19 +98,8 @@ public class Robot extends TimedRobot {
 		double delay = 0;
 		if(autoRun){
 			switch (autoSelected) {
-				case PIXY_TEST:
-				
-				System.out.println("PIXY_TEST Running");
-				
-				PixyI2C cam = new PixyI2C((byte) 0x54);
-				System.out.println("setLamp:");
-				cam.setLamp(true, true);
-				System.out.println("Free Memory: " + ((double)Runtime.getRuntime().freeMemory()/1000000));
-				break;
-				
-
 			case DEFAULT_AUTO:
-				//_driver.elevator.setElevatorHeight(2.0, 0.020, false);
+				//_driver.elevator.setElevatorHeight(2, 0.01, false);
 				break;
 			default:
 				// Put default auto code here
@@ -127,7 +117,10 @@ public class Robot extends TimedRobot {
 		spdMltWheel = 0.5; 
 		isBall = false; 
 		isPressed = false;
-		eleHeight = 0;  
+		eleHeight = 0; 
+		//led.setDutyCycle(1425); //Sets Blue Breathe
+		_driver.elevator.initPID();
+		//_driver.chassis.initTurnPID(180, 0.001);
 	}
 
 	/**
@@ -137,7 +130,6 @@ public class Robot extends TimedRobot {
 	//Runs Teleop
 	public void teleopPeriodic(){
 		//SmartDashboard Tests:
-		SmartDashboard.putNumber("Elevator Height in Tics", _driver.elevator.getTargetHeight());
 
 
 		//DRIVER ONE
@@ -197,10 +189,23 @@ public class Robot extends TimedRobot {
 		}else if(_driver.oi.getLTC2() > 0.00){
 			_driver.elevator.setElevator((OI.normalize(Math.pow(_driver.oi.getLTC2(), 3), -1.0, 0, 1.0) * -spdMlt * 0.7));
 		}else{
-			_driver.elevator.setElevator(0);
-			//0.240698
+			//_driver.elevator.setElevator(0);
+			_driver.elevator.runPID(0.02, true);
 		}
 
+		if(_driver.oi.getDownPad()){
+			_driver.elevator.setDriverTarget(0);
+		}else if(_driver.oi.getLeftPad()) {
+			_driver.elevator.setDriverTarget(1);
+		} else if(_driver.oi.getRightPad()) {
+			_driver.elevator.setDriverTarget(2);
+		} else if(_driver.oi.getUpPad()) {
+			_driver.elevator.setDriverTarget(3);
+		}
+
+
+
+		//System.out.println("Elevator Encoder: " + _driver.elevator.getDistance());
 
 		//Switch 
 		if(_driver.oi.getStartC2()){
