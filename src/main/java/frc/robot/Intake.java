@@ -9,7 +9,7 @@ public class Intake {
 	//Builds the 3 talons
 	public Intake(){
 		talon1 = new CCTalon(RobotMap.INTAKE_LEFT, true);
-		talon2 = new CCTalon(RobotMap.INTAKE_RIGHT, true);
+		talon2 = new CCTalon(RobotMap.INTAKE_RIGHT, false);
 	}
 
 	//3 methods to set the speeds for the talons 

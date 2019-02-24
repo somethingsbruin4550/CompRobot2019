@@ -1,7 +1,7 @@
 package frc.robot;
-
+//package frc.limelight;
 import edu.wpi.first.wpilibj.Timer;
-
+import frc.limelight.LimeCam;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.command.Subsystem;
@@ -17,6 +17,7 @@ public class Driver {
 	Climber climber;
 	String print;
 	Port port = Port.kOnboard;
+	LimeCam cam;
 	
 	public Driver() {
 		chassis = Chassis.getInstance();
@@ -24,6 +25,7 @@ public class Driver {
 		elevator = new Elevator();
 		intake = new Intake();
 		climber = new Climber();
+		cam = new LimeCam();
 	}
 	
 	public void reset() {

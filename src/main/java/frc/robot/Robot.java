@@ -19,6 +19,10 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.*;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -42,8 +46,14 @@ public class Robot extends TimedRobot {
 	Driver _driver;
 	double spdMltWheel;
 	boolean isBall;
-	boolean isPressed; 
+	boolean isStartPressed; 
+	boolean isPadPressed;
 	double eleHeight; 
+	boolean fuckPid = false;
+
+	private NetworkTable table = NetworkTableInstance.getDefault().getTable("ElementDashboard");
+	  NetworkTableEntry RobotStatus = table.getEntry("RobotStatus");
+	  NetworkTableEntry RobotActive = table.getEntry("RobotActive");
 
 	//RevLED led = new RevLED();
 
@@ -57,6 +67,9 @@ public class Robot extends TimedRobot {
 		_chooser = new SendableChooser<String>();
 		_chooser.addDefault("Default Auto", DEFAULT_AUTO);
 		SmartDashboard.putData("Auto choices", _chooser);
+
+		SmartDashboard.putBoolean("Disable Elevator PID", fuckPid);
+
 
 		_driver = new Driver();
 		_driver.reset();
@@ -82,11 +95,12 @@ public class Robot extends TimedRobot {
 		autoSelected = _chooser.getSelected();
 		autoRun = true;
 		_driver.reset();
-		System.out.println("Auto selected: " + autoSelected); //tvvice
-//>o)
+		_driver.elevator.returnToZero(4.0);
+		System.out.println("Auto selected: " + autoSelected);
+		RobotStatus.setString("Running Autonomous");
 		//led.setDutyCycle(1435); //Sets Gray Breathe
+		RobotActive.setBoolean(true);
 	}
-//>oo)
 	/**
 	 * This function is called periodically during autonomous
 	 */
@@ -116,12 +130,18 @@ public class Robot extends TimedRobot {
 		_driver.reset();
 		spdMltWheel = 0.5; 
 		isBall = false; 
-		isPressed = false;
+		isStartPressed = false;
+		isPadPressed = false;
 		eleHeight = 0; 
 		///led.setDutyCycle(1425); //Sets Blue Breathe
-		_driver.elevator.setDriverTarget(0);
-		_driver.elevator.initPID();
+		if(!fuckPid){
+			_driver.elevator.returnToZero(3.0);
+			_driver.elevator.setDriverTarget(0);
+			_driver.elevator.initPID();
+		}
+		RobotStatus.setString("Running Teleop");
 		//_driver.chassis.initTurnPID(180, 0.001);
+		RobotActive.setBoolean(true);
 	}
 
 	/**
@@ -167,20 +187,24 @@ public class Robot extends TimedRobot {
 		 * else 
 		 * 	set(0.0); <====This statement right here will cancel out the previous set(+speed) when RB is held 
 		 */
+		if(_driver.cam.getTargets() > 0.0) {
+			double eDVT = _driver.cam.estimateDistanceViaTrig();
+			System.out.println(eDVT);
+		}
 		//DRIVER TWO
 		double spdMlt = 1.0;
 		//Climber Stuff: Checks the bumpers and stuff 
-		if(_driver.oi.getRBC2())
-			_driver.climber.setClimberFront(spdMlt);
-		else if(_driver.oi.getLBC2())
-			_driver.climber.setClimberFront(-spdMlt);
+		if(_driver.oi.getRB())
+			_driver.climber.setClimberFront(spdMlt*0.75);
+		else if(_driver.oi.getLB())
+			_driver.climber.setClimberFront(-spdMlt*0.75);
 		else
 			_driver.climber.setClimberFront(0);
 
-		if(_driver.oi.getRB())
-			_driver.climber.setClimberBack(spdMlt);
-		else if(_driver.oi.getLB())
-			_driver.climber.setClimberBack(-spdMlt);
+		if(_driver.oi.getRBC2())
+			_driver.climber.setClimberBack(spdMlt*0.75);
+		else if(_driver.oi.getLBC2())
+			_driver.climber.setClimberBack(-spdMlt*0.75);
 		else
 			_driver.climber.setClimberBack(0);
 
@@ -189,33 +213,53 @@ public class Robot extends TimedRobot {
 			_driver.elevator.setElevator((OI.normalize(Math.pow(_driver.oi.getRTC2(), 3), -1.0, 0, 1.0) * spdMlt));
 		}else if(_driver.oi.getLTC2() > 0.00){
 			_driver.elevator.setElevator((OI.normalize(Math.pow(_driver.oi.getLTC2(), 3), -1.0, 0, 1.0) * -spdMlt * 0.7));
-		}else{
-			//_driver.elevator.setElevator(0);
+		}else if (!fuckPid){
 			_driver.elevator.runPID(0.02, true);
+		} else {
+			_driver.elevator.setElevator(0.240698);
 		}
+		//	System.out.println("Elevator Pos: " + _driver.elevator.getDistance());
 
-		if(_driver.oi.getDownPad()){
+		/*
+		if(_driver.oi.getDownPadC2()){
 			_driver.elevator.setDriverTarget(0);
-		}else if(_driver.oi.getLeftPad()) {
+		}else if(_driver.oi.getRightPadC2() || _driver.oi.getLeftPadC2()) {
 			_driver.elevator.setDriverTarget(1);
-		} else if(_driver.oi.getRightPad()) {
+		} else if(_driver.oi.getUpPadC2()) {
 			_driver.elevator.setDriverTarget(2);
-		} else if(_driver.oi.getUpPad()) {
-			_driver.elevator.setDriverTarget(3);
+		} 
+		*/
+
+		if(_driver.oi.getUpPadC2() || _driver.oi.getDownPadC2()){
+			if(!isPadPressed){
+				if(_driver.oi.getUpPadC2()){
+					_driver.elevator.addDriverTarget(true);
+				}
+				else if(_driver.oi.getDownPadC2()){
+					_driver.elevator.addDriverTarget(false);
+				}
+				Timer.delay(0.15);
+				isPadPressed = true;
+			}
+			else{
+				isPadPressed = false;
+			}
 		}
 
-
+		if(_driver.oi.getSelect()){
+			fuckPid = !fuckPid;
+		}
 
 		//System.out.println("Elevator Encoder: " + _driver.elevator.getDistance());
 
 		//Switch 
 		if(_driver.oi.getStartC2()){
-			if(!isPressed){ 
+			if(!isStartPressed){ 
 				isBall = !isBall; 
-				isPressed = true;
+				isStartPressed = true;
 			}
 		} else {
-			isPressed = false; 
+			isStartPressed = false; 
 		}
 		
 		//Intake stuff(Ball)
@@ -245,7 +289,8 @@ public class Robot extends TimedRobot {
 	@Override
 	public void testPeriodic() {
 		//For testing purposes only, this is an infinte loop, similar to teleOP perodic, and autonomousPerodic
-		//_driver.elevator.setElevatorHeight(2.0, 0.01, false );
+		//_driver.elevator.returnToZero(2.0);
+		//_driver.elevator.setElevatorHeight(1.0, 0.01, false, 0.07);
 		
 	}
 }

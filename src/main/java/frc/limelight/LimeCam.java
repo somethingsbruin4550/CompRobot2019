@@ -14,6 +14,7 @@ public class LimeCam {
     private NetworkTableEntry ta = table.getEntry("ta");
     private NetworkTableEntry px = table.getEntry("px");
     private NetworkTableEntry py = table.getEntry("py");
+    private NetworkTableEntry tv = table.getEntry("tv"); //gets the targets in the view of the camera
 
     //read values periodically
     double x = tx.getDouble(0.0);
@@ -21,6 +22,7 @@ public class LimeCam {
     double area = ta.getDouble(0.0); 
     
     
+
     // //Posts the x, y, and the area to the smart dashboard
     // SmartDashboard.putNumber("LimelightX", x);
     // SmartDashboard.putNumber("LimelightY", y);
@@ -29,24 +31,30 @@ public class LimeCam {
     //Estimates the distance using MATH:
     //Uses the area of the recongiized object to calculate the distance
     //Sees the percentage of the screen that the object is taking up, and returns the distance 
+    public LimeCam() {
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(3);
+    }
     public double estimateDistanceViaArea(){
         final double PROPCONST = 20.0; //need to measure
         double dist = ta.getDouble(0.0)*PROPCONST;
         return dist;
     }
-
+    public double getTargets() {
+        return tv.getDouble(0);
+    }
     //Elitimates the distance using DIFFERENT MATH:
     //Uses angle between the object and the camera to calculate the horizontal distance
     //NOTE: estimateDistanceViaTrig() is MORE accurate than estimateDistanceViaArea()
 
     public double estimateDistanceViaTrig(){
+        
         //equation constants, NEED TO MEASURE HEIGHT OF THE LIME LIGHT 
         final double h1 = 0.0; //height of camera off ground
         final double h2 = 0.0; //height of target off ground
         final double a1 = 0.0; //angle of camera mount off ground
 
         //off of limelight docs at http://docs.limelightvision.io/en/latest/theory.html#from-pixels-to-angles      
-        //x angle is not used but may be used later                                  
+        //x angle is not used but may be used later              
         double a2 = 0.0; //Angle of the camera to the object 
         double pixX = px.getDouble(0.0);
         double pixY = py.getDouble(0.0);
