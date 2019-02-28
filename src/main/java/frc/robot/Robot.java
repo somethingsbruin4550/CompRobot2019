@@ -95,7 +95,6 @@ public class Robot extends TimedRobot {
 		autoSelected = _chooser.getSelected();
 		autoRun = true;
 		_driver.reset();
-		_driver.elevator.returnToZero(4.0);
 		System.out.println("Auto selected: " + autoSelected);
 		RobotStatus.setString("Running Autonomous");
 		//led.setDutyCycle(1435); //Sets Gray Breathe
@@ -135,7 +134,7 @@ public class Robot extends TimedRobot {
 		eleHeight = 0; 
 		///led.setDutyCycle(1425); //Sets Blue Breathe
 		if(!fuckPid){
-			_driver.elevator.returnToZero(3.0);
+			//_driver.elevator.returnToZero(3.0);
 			_driver.elevator.setDriverTarget(0);
 			_driver.elevator.initPID();
 		}

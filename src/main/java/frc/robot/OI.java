@@ -128,7 +128,7 @@ public class OI {
 		return _controller.getRawAxis( R_JOYSTICK_VERTICAL ) * -1;
 	}
 
-	public double getRJoystickXAxisC1()
+	public double getRJoystickXAxisC2()
 	{
 		// Returns the right _controller's horizontal value.
 		return _controller2.getRawAxis( R_JOYSTICK_HORIZONTAL );
@@ -172,7 +172,7 @@ public class OI {
 	}
 
 	public boolean getYButton( )
-	{
+	{	
 		return _controller.getRawButton( Y_BUTTON );
 	}
 
