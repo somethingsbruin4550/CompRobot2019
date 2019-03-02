@@ -49,7 +49,7 @@ public class Robot extends TimedRobot {
 	boolean isStartPressed;
 	boolean isPadPressed;
 	double eleHeight;
-	boolean fuckPid = true;
+	boolean fuckPid = false;
 	boolean limeCamPid = false;
 	LimeCam lime = new LimeCam();
 
@@ -230,13 +230,7 @@ public class Robot extends TimedRobot {
 				isPadPressed = false;
 			}
 		}
-		
-		if (_driver.oi.getStartC2()) {
-			fuckPid = !fuckPid;
-			SmartDashboard.putBoolean("Elevator Pid Enabled", !fuckPid);
-			
-		}
-
+	
 		// System.out.println("Elevator Encoder: " + _driver.elevator.getDistance());
 
 		// Switch
