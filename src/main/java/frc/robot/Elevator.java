@@ -112,7 +112,7 @@ public class Elevator {
 		double inches = 0;
 		if(driverTarget == 0){
 			status = "Hatch Port 1";
-			inches = 19;
+			inches = 12;
 		}
 		else if(driverTarget == 1){
 			status = "Cargo Port 1";

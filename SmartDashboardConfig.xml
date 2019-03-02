@@ -15,18 +15,6 @@
 	<widget field="Limelight_PipelineName" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
 		<location x="1231" y="7"/>
 	</widget>
-	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.MjpgStreamViewerImpl">
-		<location x="242" y="3"/>
-		<width>672</width>
-		<height>441</height>
-		<property name="MJPG Server URL" value="http://frcvision.local:1181/stream.mjpg"/>
-	</static-widget>
-	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.MjpgStreamViewerImpl">
-		<location x="919" y="141"/>
-		<width>533</width>
-		<height>301</height>
-		<property name="MJPG Server URL" value="http://frcvision.local:1182/stream.mjpg"/>
-	</static-widget>
 	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.ConnectionIndicator">
 		<location x="0" y="0"/>
 		<property name="Graphics" value="Rounded"/>
@@ -34,17 +22,20 @@
 	<widget field="Auto choices" type="String Chooser" class="edu.wpi.first.smartdashboard.gui.elements.Chooser">
 		<location x="4" y="35"/>
 	</widget>
+	<widget field="Elevator Pid Enabled" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="-2" y="118"/>
+	</widget>
 </dashboard>
 <live-window>
 	<widget field="Ungrouped" type="LW Subsystem" class="edu.wpi.first.smartdashboard.livewindow.elements.LWSubsystem">
-		<widget field="Encoder[1]" type="Quadrature Encoder" class="edu.wpi.first.smartdashboard.livewindow.elements.EncoderDisplay">
+		<widget field="Talon SRX [4]" type="Speed Controller" class="edu.wpi.first.smartdashboard.livewindow.elements.SpeedController">
 			<location x="6" y="15"/>
-			<height>92</height>
+			<height>45</height>
 			<width>295</width>
 		</widget>
-		<widget field="Talon SRX [4]" type="Speed Controller" class="edu.wpi.first.smartdashboard.livewindow.elements.SpeedController">
-			<location x="6" y="107"/>
-			<height>45</height>
+		<widget field="Encoder[1]" type="Quadrature Encoder" class="edu.wpi.first.smartdashboard.livewindow.elements.EncoderDisplay">
+			<location x="6" y="60"/>
+			<height>92</height>
 			<width>295</width>
 		</widget>
 		<widget field="Talon SRX [3]" type="Speed Controller" class="edu.wpi.first.smartdashboard.livewindow.elements.SpeedController">
@@ -97,7 +88,7 @@
 			<height>45</height>
 			<width>295</width>
 		</widget>
-		<location x="0" y="0"/>
+		<location x="19" y="28"/>
 		<width>307</width>
 		<height>702</height>
 	</widget>
