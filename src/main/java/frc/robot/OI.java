@@ -219,20 +219,20 @@ public class OI {
 	}
 
 	public boolean getStart( ){
-		return _controller.getRawButton( START_BUTTON );
+		return _controller.getRawButtonReleased( START_BUTTON );
 	}
 
 	public boolean getSelect( ){
-		return _controller.getRawButton( SELECT_BUTTON );
+		return _controller.getRawButtonReleased( SELECT_BUTTON );
 	}
 
 	
 	public boolean getStartC2( ){
-		return _controller2.getRawButton( START_BUTTON );
+		return _controller2.getRawButtonReleased( START_BUTTON );
 	}
 
 	public boolean getSelectC2( ){
-		return _controller2.getRawButton( SELECT_BUTTON );
+		return _controller2.getRawButtonReleased( SELECT_BUTTON );
 	}
 
 	public boolean getLeftPad(){

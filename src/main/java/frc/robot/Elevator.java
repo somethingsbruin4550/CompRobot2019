@@ -13,13 +13,15 @@ public class Elevator {
 	Encoder encoder;
 	OI oi = new OI();
 
+	double inches = 19; 
+
 	boolean elevatorAdjusting;
 	int driverTarget = 0;
 	boolean withinTarget;
 		
-	double ticsPerFeet;
+	double ticsPerInch = 43.8602409;//526.322891; //encoder ticks per inch
 
-	double baseHeight = 1;
+	double baseHeight = 19;
 
 	double feed_forward; // forward input to reduce the steady state error
 	double max; // used to clamp the max speed, to slow down the robot
@@ -33,8 +35,15 @@ public class Elevator {
 	double Ki; // integral constant
 	double Kd;//0.002; // derivative constant
 	double goal;
-		
-
+	double[] targets = {
+		19.0, //Base
+		25.5, //Hatch 1
+		35.0, //Cargo 1
+		45.0, //Hatch 2
+		60.5, //Cargo 2
+		74.0, //Hatch 3
+		86.5  //Cargo 3
+	};
 	double position; // current position in inches/feed, degrees, etc.)
 	double error; // our goal is to make the error from the current position zero)
 	double error_check;
@@ -88,57 +97,6 @@ public class Elevator {
 		driverTarget = level;
 	}
 
-	public void addDriverTarget(boolean add){
-		if(add){
-			driverTarget++;
-		}
-		else{
-			driverTarget--;
-		}
-		if(driverTarget < 0){
-			driverTarget = 0;
-		}
-		else if (driverTarget > 5){
-			driverTarget = 5;
-		}
-	}
-
-	/**
-	 * Converts from level of target to height of target in FEET
-	 * @return Target height in FEET
-	 */
-	public double levelToFeet(){
-		String status = "";
-		double inches = 0;
-		if(driverTarget == 0){
-			status = "Hatch Port 1";
-			inches = 12;
-		}
-		else if(driverTarget == 1){
-			status = "Cargo Port 1";
-			inches = 32.5;
-		}
-		else if(driverTarget == 2){
-			status = "Hatch Port 2";
-			inches = 45;
-		}
-		else if(driverTarget == 3){
-			status = "Cargo Port 2";
-			inches = 60.5;
-		}
-		else if(driverTarget == 4){
-			status = "Hatch Port 3";
-			inches = 74;
-		}
-		else if(driverTarget == 5){
-			status = "Cargo Port 3";
-			inches = 88.5;
-		}
-		SmartDashboard.putString("Elevator Level", status);
-		ElevatorLevel.setString(status);
-		return inches/12;
-	}
-
 	/**
 	 * Runs the elevator down for a set number of seconds
 	 * Resets encoder value at the end
@@ -158,10 +116,8 @@ public class Elevator {
 	public void initPID(){
 		elevatorAdjusting = true;
 		withinTarget = false;
-		
-		ticsPerFeet = 526.322891;
 
-		baseHeight = 19/12; //Base elevator height in FEET
+		baseHeight = 19; //Base elevator height in FEET
 
 		feed_forward = 0.240698; // forward input to reduce the steady state error
 		max = 1.0; // used to clamp the max speed, to slow down the robot
@@ -180,7 +136,7 @@ public class Elevator {
 			Kd = 0; // derivative constant
 		}
 		
-		goal = (levelToFeet()-baseHeight) * ticsPerFeet;
+		goal = (inches-baseHeight) * ticsPerInch;
 		
 		position = this.getDistance(); // current position in inches/feed, degrees, etc.)
 		error = 0; // our goal is to make the error from the current position zero)
@@ -194,7 +150,7 @@ public class Elevator {
 	 * @param debugOn If true, will print out pid values
 	 */
 	public void runPID( double dt, boolean debugOn){
-		goal = (levelToFeet()-baseHeight) * ticsPerFeet;
+		goal = (inches-baseHeight) * ticsPerInch;
 
 		error_check = goal/150; //Sets the error_check
 		//Reset the Position
@@ -231,5 +187,34 @@ public class Elevator {
 			//System.out.println("Integral: " + integral);
 			
 		}
+	}
+
+	public void addInches(boolean pos) {
+		if((this.getElevator() <= 88.5*ticsPerInch) && pos) {
+			inches += 1.0;
+		} else if((this.getElevator() >= 0.0) && (!pos)) {
+			inches -= 1.0;
+		}
+	}
+
+	public void snapToHeight(boolean up) {
+		if(up){
+			int target = findClosest();
+			inches = targets[target];
+		} else {
+			int target = findClosest() - 1;
+			if(target <  0)
+				target = 0;
+			inches = targets[target];
+		}
+		System.out.println("Snap to target on");
+	}
+
+	public int findClosest(){
+		for(int i = 0; i < targets.length; i++){
+			if(targets[i] >= inches)
+				return i;
+		}
+		return targets.length-1;
 	}
 }

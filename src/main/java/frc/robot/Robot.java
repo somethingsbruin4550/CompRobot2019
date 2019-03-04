@@ -49,9 +49,9 @@ public class Robot extends TimedRobot {
 	boolean isStartPressed;
 	boolean isPadPressed;
 	double eleHeight;
-	boolean fuckPid = false;
 	boolean limeCamPid = false;
 	LimeCam lime = new LimeCam();
+	int camera = 0; 
 
 	private NetworkTable table = NetworkTableInstance.getDefault().getTable("ElementDashboard");
 	NetworkTableEntry RobotStatus = table.getEntry("RobotStatus");
@@ -66,11 +66,12 @@ public class Robot extends TimedRobot {
 	@Override
 	// Runs at Startup
 	public void robotInit() {
+		SmartDashboard.putNumber("rstatus", Math.random());
 		_chooser = new SendableChooser<String>();
 		_chooser.addDefault("Default Auto", DEFAULT_AUTO);
 		SmartDashboard.putData("Auto choices", _chooser);
 
-		//SmartDashboard.putBoolean("Disable Elevator PID", fuckPid);
+		// SmartDashboard.putBoolean("Disable Elevator PID", );
 
 		_driver = new Driver();
 		_driver.reset();
@@ -129,21 +130,20 @@ public class Robot extends TimedRobot {
 
 	public void teleopInit() {
 		_driver.reset();
-		spdMltWheel = 0.5;
+		_driver.elevator.reset();
+		spdMltWheel = 0.4;
 		isBall = false;
 		isStartPressed = false;
 		isPadPressed = false;
 		eleHeight = 0;
 		/// led.setDutyCycle(1425); //Sets Blue Breathe
-		if (!fuckPid) {
-			// _driver.elevator.returnToZero(3.0);
-			_driver.elevator.setDriverTarget(0);
-			_driver.elevator.initPID();
-		}
+		// _driver.elevator.returnToZero(3.0);
+		_driver.elevator.setDriverTarget(0);
+		_driver.elevator.initPID();
 		RobotStatus.setString("Running Teleop");
 		// _driver.chassis.initTurnPID(180, 0.001);
 		RobotActive.setBoolean(true);
-		SmartDashboard.putBoolean("Elevator Pid Enabled", !fuckPid);
+		SmartDashboard.putBoolean("Elevator Pid Enabled", true);
 	}
 
 	/**
@@ -152,19 +152,34 @@ public class Robot extends TimedRobot {
 	@Override
 	// Runs Teleop
 	public void teleopPeriodic() {
-		// SmartDashboard:
+		// ElementalDashboard:
+		if(_driver.oi.getXButton()){
+			SmartDashboard.putNumber("rstatus", Math.random());
+		} 
+
 
 		// DRIVER ONE
 		// Speed control
 		if (_driver.oi.getAButton())
-			spdMltWheel = 0.50;
+			spdMltWheel = 0.375;
+		else if (_driver.oi.getBButton())
+			spdMltWheel = 0.5; 
 		else if (_driver.oi.getYButton())
-			spdMltWheel = 1.0;
+			spdMltWheel = 1.0; 
 
 		// Wheel Stuff
 		_driver.chassis.drive(OI.normalize(_driver.oi.getRJoystickXAxis(), -1.0, 0, 1.0) * spdMltWheel,
 				OI.normalize(_driver.oi.getLJoystickYAxis(), -1.0, 0, 1.0) * spdMltWheel);
 
+		//Switch
+		if(_driver.oi.getStart()){
+			camera++;
+			if(camera > 1)
+				camera = 0;
+			NetworkTableEntry CameraToggle = table.getEntry("CameraToggle");
+		}
+
+		
 		// MECHANISMS
 		/**
 		 * To program mechanisms, look for t0/-he specific methods within the OI class
@@ -206,72 +221,64 @@ public class Robot extends TimedRobot {
 
 		// Elevator stuff
 		if (_driver.oi.getRTC2() > 0.00) {
-			_driver.elevator.setElevator((OI.normalize(Math.pow(_driver.oi.getRTC2(), 3), -1.0, 0, 1.0) * spdMlt));
+			_driver.elevator.addInches(true);
 		} else if (_driver.oi.getLTC2() > 0.00) {
-			_driver.elevator
-					.setElevator((OI.normalize(Math.pow(_driver.oi.getLTC2(), 3), -1.0, 0, 1.0) * -spdMlt * 0.7));
-		} else if (!fuckPid) {
-			_driver.elevator.runPID(0.02, true);
+			_driver.elevator.addInches(false);
 		} else {
-			_driver.elevator.setElevator(0.240698);
-		}
-		// System.out.println("Elevator Pos: " + _driver.elevator.getDistance());
-
-		if (_driver.oi.getUpPadC2() || _driver.oi.getDownPadC2()) {
-			if (!isPadPressed) {
-				if (_driver.oi.getUpPadC2()) {
-					_driver.elevator.addDriverTarget(true);
-				} else if (_driver.oi.getDownPadC2()) {
-					_driver.elevator.addDriverTarget(false);
-				}
-				Timer.delay(0.15);
-				isPadPressed = true;
-			} else {
-				isPadPressed = false;
+			if (_driver.oi.getUpPadC2()) {
+				_driver.elevator.snapToHeight(true);
+				// Timer.delay(0.015);
+			} else if (_driver.oi.getDownPadC2()) {
+				_driver.elevator.snapToHeight(false);
+				// Timer.delay(0.015);
 			}
 		}
-	
+		_driver.elevator.runPID(0.02, false);
+		// System.out.println("Elevator Pos: " + _driver.elevator.getDistance());
+
 		// System.out.println("Elevator Encoder: " + _driver.elevator.getDistance());
 
 		// Switch
 		// if (_driver.oi.getStartC2()) {
-		// 	if (!isStartPressed) {
-		// 		isBall = !isBall;
-		// 		isStartPressed = true;
-		// 	}
+		// if (!isStartPressed) {
+		// isBall = !isBall;
+		// isStartPressed = true;
+		// }
 		// } else {
-		// 	isStartPressed = false;
+		// isStartPressed = false;
 		// }
 
 		// Intake stuff(Ball)
-		if (isBall) {
+
+		// if (isBall) {
 			if (_driver.oi.getAButtonC2())
 				_driver.intake.setIntake(spdMlt);
 			else if (_driver.oi.getYButtonC2())
-				_driver.intake.setIntake(-spdMlt);
+				_driver.intake.setOuttake(spdMlt);
 			else
 				_driver.intake.setIntake(0.0);
-		} else {
-			// Intake stuff(Hatch);
-			if (_driver.oi.getAButtonC2())
-				_driver.intake.setIntake(-spdMlt);
-			else if (_driver.oi.getYButtonC2())
-				_driver.intake.setIntake(spdMlt);
-			else
-				_driver.intake.setIntake(0.0);
-		}
+		// }
+		//  else {
+		// 	// Intake stuff(Hatch);
+		// 	if (_driver.oi.getAButtonC2())
+		// 		_driver.intake.setIntake(-spdMlt);
+		// 	else if (_driver.oi.getYButtonC2())
+		// 		_driver.intake.setIntake(spdMlt);
+		// 	else
+		// 		_driver.intake.setIntake(0.0);
+		// }
 
 		if (limeCamPid) {
 			_driver.chassis.initTurnPID(lime.getHortAngle(), 0.01);
 			_driver.chassis.runTurnPID(true);
-		} 
-
-		if(_driver.oi.getAButton()){
-			limeCamPid = true; 
 		}
 
-		if(_driver.oi.getYButton()){
-			limeCamPid = false; 
+		if (_driver.oi.getAButton()) {
+			limeCamPid = true;
+		}
+
+		if (_driver.oi.getYButton()) {
+			limeCamPid = false;
 		}
 
 	}
