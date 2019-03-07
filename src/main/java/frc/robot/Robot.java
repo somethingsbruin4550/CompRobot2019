@@ -52,6 +52,7 @@ public class Robot extends TimedRobot {
 	boolean limeCamPid = false;
 	LimeCam lime = new LimeCam();
 	int camera = 0; 
+	boolean teleOPInit = false; 
 
 	private NetworkTable table = NetworkTableInstance.getDefault().getTable("ElementDashboard");
 	NetworkTableEntry RobotStatus = table.getEntry("RobotStatus");
@@ -115,7 +116,20 @@ public class Robot extends TimedRobot {
 		if (autoRun) {
 			switch (autoSelected) {
 			case DEFAULT_AUTO:
-				// _driver.elevator.setElevatorHeight(2, 0.01, false);
+				_driver.reset();
+				_driver.elevator.reset();
+				spdMltWheel = 0.5;
+				isPadPressed = false;
+				eleHeight = 0;
+				/// led.setDutyCycle(1425); //Sets Blue Breathe
+				// _driver.elevator.returnToZero(3.0);
+				_driver.elevator.setDriverTarget(0);
+				_driver.elevator.initPID();
+				RobotStatus.setString("Running Teleop");
+				// _driver.chassis.initTurnPID(180, 0.001);
+				RobotActive.setBoolean(true);
+				SmartDashboard.putBoolean("Elevator Pid Enabled", true);
+				teleOPInit = true; 
 				break;
 			default:
 				// Put default auto code here
@@ -129,21 +143,21 @@ public class Robot extends TimedRobot {
 	}
 
 	public void teleopInit() {
-		_driver.reset();
-		_driver.elevator.reset();
-		spdMltWheel = 0.4;
-		isBall = false;
-		isStartPressed = false;
-		isPadPressed = false;
-		eleHeight = 0;
-		/// led.setDutyCycle(1425); //Sets Blue Breathe
-		// _driver.elevator.returnToZero(3.0);
-		_driver.elevator.setDriverTarget(0);
-		_driver.elevator.initPID();
-		RobotStatus.setString("Running Teleop");
-		// _driver.chassis.initTurnPID(180, 0.001);
-		RobotActive.setBoolean(true);
-		SmartDashboard.putBoolean("Elevator Pid Enabled", true);
+		if(!teleOPInit){
+			_driver.reset();
+			_driver.elevator.reset();
+			spdMltWheel = 0.5;
+			isPadPressed = false;
+			eleHeight = 0;
+			/// led.setDutyCycle(1425); //Sets Blue Breathe
+			// _driver.elevator.returnToZero(3.0);
+			_driver.elevator.setDriverTarget(0);
+			_driver.elevator.initPID();
+			RobotStatus.setString("Running Teleop");
+			// _driver.chassis.initTurnPID(180, 0.001);
+			RobotActive.setBoolean(true);
+			SmartDashboard.putBoolean("Elevator Pid Enabled", true);
+		}
 	}
 
 	/**
@@ -160,12 +174,10 @@ public class Robot extends TimedRobot {
 
 		// DRIVER ONE
 		// Speed control
-		if (_driver.oi.getAButton())
-			spdMltWheel = 0.375;
-		else if (_driver.oi.getBButton())
-			spdMltWheel = 0.5; 
-		else if (_driver.oi.getYButton())
-			spdMltWheel = 1.0; 
+		// if (_driver.oi.getAButton())
+		// 	spdMltWheel = 0.5;
+		// else if (_driver.oi.getYButton())
+		// 	spdMltWheel = 1.0; 
 
 		// Wheel Stuff
 		_driver.chassis.drive(OI.normalize(_driver.oi.getRJoystickXAxis(), -1.0, 0, 1.0) * spdMltWheel,
@@ -176,7 +188,7 @@ public class Robot extends TimedRobot {
 			camera++;
 			if(camera > 1)
 				camera = 0;
-			NetworkTableEntry CameraToggle = table.getEntry("CameraToggle");
+			table.getEntry("cameraToggle").setNumber(camera);
 		}
 
 		
@@ -221,32 +233,28 @@ public class Robot extends TimedRobot {
 
 		// Elevator stuff
 		if (_driver.oi.getRTC2() > 0.00) {
-			_driver.elevator.addInches(true);
+			_driver.elevator.setElevator(OI.normalize(_driver.oi.getRTC2(), -1.0, 0.0, 1.0));
 		} else if (_driver.oi.getLTC2() > 0.00) {
-			_driver.elevator.addInches(false);
+			_driver.elevator.setElevator(OI.normalize(_driver.oi.getLTC2(), -1.0, 0.0, 1.0)*-0.7);
 		} else {
-			if (_driver.oi.getUpPadC2()) {
-				_driver.elevator.snapToHeight(true);
-				// Timer.delay(0.015);
-			} else if (_driver.oi.getDownPadC2()) {
-				_driver.elevator.snapToHeight(false);
-				// Timer.delay(0.015);
-			}
+			_driver.elevator.runPID(0.02, false);
 		}
-		_driver.elevator.runPID(0.02, false);
 		// System.out.println("Elevator Pos: " + _driver.elevator.getDistance());
 
 		// System.out.println("Elevator Encoder: " + _driver.elevator.getDistance());
 
-		// Switch
-		// if (_driver.oi.getStartC2()) {
-		// if (!isStartPressed) {
-		// isBall = !isBall;
-		// isStartPressed = true;
-		// }
-		// } else {
-		// isStartPressed = false;
-		// }
+		//Switch
+		if (_driver.oi.getUpPadC2() || _driver.oi.getDownPadC2()) {
+			if (!isPadPressed) {
+				if(_driver.oi.getUpPadC2())
+					_driver.elevator.snapToHeight(true);
+				else if(_driver.oi.getDownPadC2())
+					_driver.elevator.snapToHeight(false);
+				isPadPressed = true;
+			}
+		} else {
+			isPadPressed = false;
+		}
 
 		// Intake stuff(Ball)
 

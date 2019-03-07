@@ -60,8 +60,8 @@ public class Chassis {
 
 		// Creates the Encoders
 		// encoder = new Encoder(RobotMap.firstPort, RobotMap.secondPort)
-		_leftEncoder = new Encoder(RobotMap.ENCODER_A_LEFT, RobotMap.ENCODER_B_LEFT);
-		_rightEncoder = new Encoder(RobotMap.ENCODER_A_RIGHT, RobotMap.ENCODER_B_RIGHT);
+		//_leftEncoder = new Encoder(RobotMap.ENCODER_A_LEFT, RobotMap.ENCODER_B_LEFT);
+		//_rightEncoder = new Encoder(RobotMap.ENCODER_A_RIGHT, RobotMap.ENCODER_B_RIGHT);
 
 		try {
 			// Tries to build and gyro

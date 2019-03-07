@@ -22,37 +22,37 @@ public class RobotMap {
 	//	COMPETITION ROBOT CONSTANTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	// Wheel Talons
-	public static final int BACK_LEFT = 0;
-	public static final int BACK_RIGHT = 7;
-	public static final int FRONT_RIGHT = 8;
-	public static final int FRONT_LEFT = 2;
-
-	//Talon Ports for Intake
-	public static final int INTAKE_LEFT = 6;
-	public static final int INTAKE_RIGHT = 4;
-			
-	//Talon ports for Elevator
-	public static final int ELEVATOR = 5;
-		
-	//Talon ports for Climber 
-	public static final int CLIMBER_A = 1;
-	public static final int CLIMBER_B = 3;
-	// // Wheel Talons
-	// public static final int BACK_LEFT = 6;
-	// public static final int BACK_RIGHT = 5;
-	// public static final int FRONT_RIGHT = 4;
-	// public static final int FRONT_LEFT = 3;
+	// public static final int BACK_LEFT = 0;
+	// public static final int BACK_RIGHT = 7;
+	// public static final int FRONT_RIGHT = 8;
+	// public static final int FRONT_LEFT = 2;
 
 	// //Talon Ports for Intake
-	// public static final int INTAKE_LEFT = 8;
-	// public static final int INTAKE_RIGHT = 7;
+	// public static final int INTAKE_LEFT = 6;
+	// public static final int INTAKE_RIGHT = 4;
 			
 	// //Talon ports for Elevator
-	// public static final int ELEVATOR = 0;
+	// public static final int ELEVATOR = 5;
 		
 	// //Talon ports for Climber 
 	// public static final int CLIMBER_A = 1;
-	// public static final int CLIMBER_B = 2;
+	// public static final int CLIMBER_B = 3;
+	// // Wheel Talons
+	public static final int BACK_LEFT = 6;
+	public static final int BACK_RIGHT = 5;
+	public static final int FRONT_RIGHT = 4;
+	public static final int FRONT_LEFT = 3;
+
+	//Talon Ports for Intake
+	public static final int INTAKE_LEFT = 8;
+	public static final int INTAKE_RIGHT = 7;
+			
+	//Talon ports for Elevator
+	public static final int ELEVATOR = 0;
+		
+	//Talon ports for Climber 
+	public static final int CLIMBER_A = 1;
+	public static final int CLIMBER_B = 2;
 
 	// Wheel Talon Polarity
 	public static final boolean FRONT_LEFT_REVERSE = false;
@@ -65,12 +65,12 @@ public class RobotMap {
 	public static final double RIGHT_Y_ZERO = -0.0078125;
 
 	// Wheel Encoder Ports
-	public static final int ENCODER_A_RIGHT = 0;
-	public static final int ENCODER_B_RIGHT = 1;
-	public static final int ENCODER_A_LEFT = 2;
-	public static final int ENCODER_B_LEFT = 3;
-	public static final int ENCODER_ELEVATOR_A = 4;
-	public static final int ENCODER_ELEVATOR_B = 5; 
+	// public static final int ENCODER_A_RIGHT = 0;
+	// public static final int ENCODER_B_RIGHT = 5;
+	// public static final int ENCODER_A_LEFT = 6;
+	// public static final int ENCODER_B_LEFT = 3;
+	public static final int ENCODER_ELEVATOR_A = 1;
+	public static final int ENCODER_ELEVATOR_B = 2; 
 
 
 	// Joystick Axises

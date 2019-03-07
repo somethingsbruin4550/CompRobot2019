@@ -13,7 +13,7 @@ public class Elevator {
 	Encoder encoder;
 	OI oi = new OI();
 
-	double inches = 19; 
+	double inches = 0; 
 
 	boolean elevatorAdjusting;
 	int driverTarget = 0;
@@ -21,7 +21,7 @@ public class Elevator {
 		
 	double ticsPerInch = 43.8602409;//526.322891; //encoder ticks per inch
 
-	double baseHeight = 19;
+	double baseHeight = 0;
 
 	double feed_forward; // forward input to reduce the steady state error
 	double max; // used to clamp the max speed, to slow down the robot
@@ -36,14 +36,15 @@ public class Elevator {
 	double Kd;//0.002; // derivative constant
 	double goal;
 	double[] targets = {
-		19.0, //Base
-		25.5, //Hatch 1
-		35.0, //Cargo 1
-		45.0, //Hatch 2
-		60.5, //Cargo 2
-		74.0, //Hatch 3
-		86.5  //Cargo 3
+		0.0,
+		5.50, //Hatch 1
+		14.00, //Cargo 1
+		33.50, //Hatch 2
+		42.00, //Cargo 2
+		61.50, //Hatch 3
+		70.0  //Cargo 3
 	};
+	int target = 0; 
 	double position; // current position in inches/feed, degrees, etc.)
 	double error; // our goal is to make the error from the current position zero)
 	double error_check;
@@ -110,17 +111,17 @@ public class Elevator {
 	}
 
 	/**
-	 * Initializes the PID values for the elevator
+	 * Initializes the PICameraToggleD values for the elevator
 	 * For calculating Constants, they can be found here: https://frc-pdr.readthedocs.io/en/latest/control/pid_control.html
 	 */
 	public void initPID(){
 		elevatorAdjusting = true;
 		withinTarget = false;
 
-		baseHeight = 19; //Base elevator height in FEET
+		baseHeight = 0; //Base elevator height in FEET
 
-		feed_forward = 0.240698; // forward input to reduce the steady state error
-		max = 1.0; // used to clamp the max speed, to slow down the robot
+		feed_forward = 0.250698; // forward input to reduce the steady state error
+		max = 0.7; // used to clamp the max speed, to slow down the robot
 		previous_error = 0; // used to calculate the derivative value
 		integral = 0; // used to carry the sum of the error
 		derivative = 0; // used to calculate the change between our goal and position
@@ -132,8 +133,8 @@ public class Elevator {
 		}
 		else{ //Constants derived from testing
 			Kp = 0.005; // proportional constant
-			Ki = 0; // integral constant
-			Kd = 0; // derivative constant
+			Ki = 0.002; // integral constant
+			Kd = 0.0; // derivative constant
 		}
 		
 		goal = (inches-baseHeight) * ticsPerInch;
@@ -150,6 +151,7 @@ public class Elevator {
 	 * @param debugOn If true, will print out pid values
 	 */
 	public void runPID( double dt, boolean debugOn){
+		inches = targets[target];
 		goal = (inches-baseHeight) * ticsPerInch;
 
 		error_check = goal/150; //Sets the error_check
@@ -169,7 +171,7 @@ public class Elevator {
 		previous_error = error;
 		
 		//After the spd has been fixed, set the speed to the output
-		this.setElevator(OI.normalize(output, -max, 0, max));
+		this.setElevator(OI.normalize(output, -0.5, 0, max));
 		
 		//If it's close enough, just break and end the loop 
 		// if(error <= error_check) {
@@ -198,16 +200,18 @@ public class Elevator {
 	}
 
 	public void snapToHeight(boolean up) {
-		if(up){
-			int target = findClosest();
-			inches = targets[target];
-		} else {
-			int target = findClosest() - 1;
-			if(target <  0)
-				target = 0;
-			inches = targets[target];
-		}
-		System.out.println("Snap to target on");
+		if(up)
+			target++;
+		else
+			target--;
+
+		if(target > targets.length - 1)
+			target = targets.length -1;
+		else if(target < 0)
+			target = 0;
+
+		//System.out.println("Snap to target on");
+	//	System.out.println("Inches: " + inches);
 	}
 
 	public int findClosest(){
