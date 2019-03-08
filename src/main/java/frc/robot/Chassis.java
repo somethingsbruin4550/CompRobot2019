@@ -101,69 +101,69 @@ public class Chassis {
 		return 0.0;
 	}
 
-	public void driveDist(double dist, double delay, boolean debug) {
+	// public void driveDist(double dist, double delay, boolean debug) {
 
-		double feed_forward = 0.0234375; // forward input to reduce the steady state error
-		double maxD = 0.275; // used to clamp the max speed, to slow down the robot
-		double previous_errorD = 0; // used to calculate the derivative value
-		double integralD = 0; // used to carry the sum of the error
-		double derivativeD = 0; // used to calculate the change between our goal and position
-		double KpD = 0.00419; // proportional constant
-		double KiD = 0.0; // integral constant
-		double KdD = 0;// 0.002; // derivative constant
-		double goal = dist * encoderPerFeet;
-		// this is what we want the robot to do: go forward,
-		// turn, elevate, etc to a new position)
-		double dt = delay;
-		// this is the wait period for the loop e.g. 1/100s)
-		double position = (this.getLeftEncoder() + this.getRightEncoder()) / 2;// current position in inches/feed,
-																				// degrees, etc.)
-		double offsetL = (position - this.getLeftEncoder()) / encoderPerVolt;
-		double offsetR = (position - this.getRightEncoder()) / encoderPerVolt;
-		double error = 0; // our goal is to make the error from the current position zero)
-		double error_check = goal / 100;
+	// 	double feed_forward = 0.0234375; // forward input to reduce the steady state error
+	// 	double maxD = 0.275; // used to clamp the max speed, to slow down the robot
+	// 	double previous_errorD = 0; // used to calculate the derivative value
+	// 	double integralD = 0; // used to carry the sum of the error
+	// 	double derivativeD = 0; // used to calculate the change between our goal and position
+	// 	double KpD = 0.00419; // proportional constant
+	// 	double KiD = 0.0; // integral constant
+	// 	double KdD = 0;// 0.002; // derivative constant
+	// 	double goal = dist * encoderPerFeet;
+	// 	// this is what we want the robot to do: go forward,
+	// 	// turn, elevate, etc to a new position)
+	// 	double dt = delay;
+	// 	// this is the wait period for the loop e.g. 1/100s)
+	// 	double position = (this.getLeftEncoder() + this.getRightEncoder()) / 2;// current position in inches/feed,
+	// 																			// degrees, etc.)
+	// 	double offsetL = (position - this.getLeftEncoder()) / encoderPerVolt;
+	// 	double offsetR = (position - this.getRightEncoder()) / encoderPerVolt;
+	// 	double error = 0; // our goal is to make the error from the current position zero)
+	// 	double error_check = goal / 100;
 
-		while (true) {
-			// Reset the Position
-			position = this.getLeftEncoder();
-			// Calculates the error based on how far the robot is from the dist
-			error = goal - position;
-			// Calculates the Integral based on the error, delay, and the previous integral
-			integralD = integralD + error * dt;
-			// Calculates the derivative based on the error and the delay
-			derivativeD = (error - previous_errorD) / dt;
-			// MATH
-			double output = KpD * error + KiD * integralD + KdD * derivativeD + feed_forward;
-			// Passes on the error to the previous error
-			previous_errorD = error;
+	// 	while (true) {
+	// 		// Reset the Position
+	// 		position = this.getLeftEncoder();
+	// 		// Calculates the error based on how far the robot is from the dist
+	// 		error = goal - position;
+	// 		// Calculates the Integral based on the error, delay, and the previous integral
+	// 		integralD = integralD + error * dt;
+	// 		// Calculates the derivative based on the error and the delay
+	// 		derivativeD = (error - previous_errorD) / dt;
+	// 		// MATH
+	// 		double output = KpD * error + KiD * integralD + KdD * derivativeD + feed_forward;
+	// 		// Passes on the error to the previous error
+	// 		previous_errorD = error;
 
-			// NORMALIZE: If the spd is bigger than we want, set it to the max, if its less
-			// than the -max makes it the negitive max
-			if (output > maxD)
-				output = maxD;
-			else if (output < -maxD)
-				output = -maxD;
+	// 		// NORMALIZE: If the spd is bigger than we want, set it to the max, if its less
+	// 		// than the -max makes it the negitive max
+	// 		if (output > maxD)
+	// 			output = maxD;
+	// 		else if (output < -maxD)
+	// 			output = -maxD;
 
-			// After the spd has been fixed, set the speed to the output
-			this.driveSpd(output + offsetL, output + offsetR);
+	// 		// After the spd has been fixed, set the speed to the output
+	// 		this.driveSpd(output + offsetL, output + offsetR);
 
-			// If it's close enough, just break and end the loop
-			if (error <= error_check) {
-				System.out.println("break");
-				break;
-			}
+	// 		// If it's close enough, just break and end the loop
+	// 		if (error <= error_check) {
+	// 			System.out.println("break");
+	// 			break;
+	// 		}
 
-			// Delay(Uses dt)
-			Timer.delay(dt);
-			if (debug) {
-				System.out.println("Position: " + position);
-				System.out.println("Error: " + error);
-				System.out.println("Output: " + output);
-				System.out.println("Integral: " + integralD);
+	// 		// Delay(Uses dt)
+	// 		Timer.delay(dt);
+	// 		if (debug) {
+	// 			System.out.println("Position: " + position);
+	// 			System.out.println("Error: " + error);
+	// 			System.out.println("Output: " + output);
+	// 			System.out.println("Integral: " + integralD);
 
-			}
-		}
-	}
+	// 		}
+	// 	}
+	// }
 
 	// Turns to a specific angle(For Autonomous)
 	public void turnToAngle(double angl, double delay, boolean debug) {
@@ -298,8 +298,8 @@ public class Chassis {
 
 	// Resets the encoder values
 	public void reset() {
-		_leftEncoder.reset();
-		_rightEncoder.reset();
+		//_leftEncoder.reset();
+		//_rightEncoder.reset();
 		_gyro.reset();
 	}
 
@@ -317,13 +317,13 @@ public class Chassis {
 	}
 
 	// Checks Encoder, and returns it
-	public double getLeftEncoder() {
-		return _leftEncoder.getDistance();
-	}
+	// public double getLeftEncoder() {
+	// 	return _leftEncoder.getDistance();
+	// }
 
-	public double getRightEncoder() {
-		return _rightEncoder.getDistance();
-	}
+	// public double getRightEncoder() {
+	// 	return _rightEncoder.getDistance();
+	// }
 
 	// turns to the angle of the limelight target using the PID loop
 	public void turnToAngleLimePID() {

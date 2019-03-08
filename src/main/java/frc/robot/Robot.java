@@ -53,6 +53,7 @@ public class Robot extends TimedRobot {
 	LimeCam lime = new LimeCam();
 	int camera = 0; 
 	boolean teleOPInit = false; 
+	boolean fPID = true; 
 
 	private NetworkTable table = NetworkTableInstance.getDefault().getTable("ElementDashboard");
 	NetworkTableEntry RobotStatus = table.getEntry("RobotStatus");
@@ -236,8 +237,10 @@ public class Robot extends TimedRobot {
 			_driver.elevator.setElevator(OI.normalize(_driver.oi.getRTC2(), -1.0, 0.0, 1.0));
 		} else if (_driver.oi.getLTC2() > 0.00) {
 			_driver.elevator.setElevator(OI.normalize(_driver.oi.getLTC2(), -1.0, 0.0, 1.0)*-0.7);
-		} else {
+		} else if (!fPID){
 			_driver.elevator.runPID(0.02, false);
+		} else {
+			_driver.elevator.setElevator(0.110);
 		}
 		// System.out.println("Elevator Pos: " + _driver.elevator.getDistance());
 

@@ -36,6 +36,7 @@ public class Elevator {
 	double Kd;//0.002; // derivative constant
 	double goal;
 	double[] targets = {
+		/*
 		0.0,
 		5.50, //Hatch 1
 		14.00, //Cargo 1
@@ -43,6 +44,16 @@ public class Elevator {
 		42.00, //Cargo 2
 		61.50, //Hatch 3
 		70.0  //Cargo 3
+		*/
+		
+		20.0,
+		24.50, //Hatch 1
+		33.00, //Cargo 1
+		52.50, //Hatch 2
+		61.00, //Cargo 2
+		80.50, //Hatch 3
+		89.0  //Cargo 3
+		
 	};
 	int target = 0; 
 	double position; // current position in inches/feed, degrees, etc.)
@@ -118,9 +129,9 @@ public class Elevator {
 		elevatorAdjusting = true;
 		withinTarget = false;
 
-		baseHeight = 0; //Base elevator height in FEET
+		baseHeight = 19.5; //Base elevator height in Inches
 
-		feed_forward = 0.250698; // forward input to reduce the steady state error
+		feed_forward = 0.11; // forward input to reduce the steady state error
 		max = 0.7; // used to clamp the max speed, to slow down the robot
 		previous_error = 0; // used to calculate the derivative value
 		integral = 0; // used to carry the sum of the error
