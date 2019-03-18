@@ -1,5 +1,8 @@
 <xml version="1.0">
 <dashboard>
+	<widget field="rstatus" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="25" y="33"/>
+	</widget>
 	<widget field="Disable Elevator PID" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
 		<location x="0" y="97"/>
 	</widget>
@@ -25,6 +28,10 @@
 	<widget field="Elevator Pid Enabled" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
 		<location x="-2" y="118"/>
 	</widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.ConnectionIndicator">
+		<location x="0" y="0"/>
+		<property name="Graphics" value="Rounded"/>
+	</static-widget>
 </dashboard>
 <live-window>
 </live-window>

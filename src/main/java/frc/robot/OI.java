@@ -223,7 +223,7 @@ public class OI {
 	}
 
 	public boolean getSelect( ){
-		return _controller.getRawButtonReleased( SELECT_BUTTON );
+		return _controller.getRawButton( SELECT_BUTTON );
 	}
 
 	
@@ -265,6 +265,16 @@ public class OI {
 
 	public boolean getRightPadC2(){
 		return left2.get();
+	}
+
+	public boolean getAReleased()
+	{
+		return _controller.getRawButtonReleased(A_BUTTON);
+	}
+
+	public boolean getYReleased()
+	{
+		return _controller.getRawButtonReleased(Y_BUTTON);
 	}
 
 	/**

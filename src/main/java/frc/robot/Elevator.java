@@ -21,7 +21,7 @@ public class Elevator {
 		
 	double ticsPerInch = 43.8602409;//526.322891; //encoder ticks per inch
 
-	double baseHeight = 0;
+	double baseHeight = 5.5;
 
 	double feed_forward; // forward input to reduce the steady state error
 	double max; // used to clamp the max speed, to slow down the robot
@@ -35,25 +35,14 @@ public class Elevator {
 	double Ki; // integral constant
 	double Kd;//0.002; // derivative constant
 	double goal;
-	double[] targets = {
-		/*
-		0.0,
-		5.50, //Hatch 1
-		14.00, //Cargo 1
-		33.50, //Hatch 2
-		42.00, //Cargo 2
-		61.50, //Hatch 3
-		70.0  //Cargo 3
-		*/
-		
-		20.0,
-		24.50, //Hatch 1
-		33.00, //Cargo 1
-		52.50, //Hatch 2
-		61.00, //Cargo 2
-		80.50, //Hatch 3
-		89.0  //Cargo 3
-		
+	double[] targets = {		
+		 -5.5,
+		 0.0 + 3.5, //Hatch 1
+		 19.0, //Cargo 1
+		 28.5 + 1.5, //Hatch 2
+		 47.0, //Cargo 2
+		 55.5 + 1.5, //Hatch 3
+		 75.0, //Cargo 3
 	};
 	int target = 0; 
 	double position; // current position in inches/feed, degrees, etc.)
@@ -129,10 +118,10 @@ public class Elevator {
 		elevatorAdjusting = true;
 		withinTarget = false;
 
-		baseHeight = 19.5; //Base elevator height in Inches
+		baseHeight = 5.5; //Base elevator height in Inches
 
 		feed_forward = 0.11; // forward input to reduce the steady state error
-		max = 0.7; // used to clamp the max speed, to slow down the robot
+		max = 0.9; // used to clamp the max speed, to slow down the robot
 		previous_error = 0; // used to calculate the derivative value
 		integral = 0; // used to carry the sum of the error
 		derivative = 0; // used to calculate the change between our goal and position
@@ -143,8 +132,8 @@ public class Elevator {
 			Kd = 3 * Ku * Tu / 40;
 		}
 		else{ //Constants derived from testing
-			Kp = 0.005; // proportional constant
-			Ki = 0.002; // integral constant
+			Kp = 0.006; // proportional constant
+			Ki = 0.00; // integral constant
 			Kd = 0.0; // derivative constant
 		}
 		
@@ -163,7 +152,7 @@ public class Elevator {
 	 */
 	public void runPID( double dt, boolean debugOn){
 		inches = targets[target];
-		goal = (inches-baseHeight) * ticsPerInch;
+		goal = (inches+baseHeight) * ticsPerInch;
 
 		error_check = goal/150; //Sets the error_check
 		//Reset the Position
@@ -182,7 +171,7 @@ public class Elevator {
 		previous_error = error;
 		
 		//After the spd has been fixed, set the speed to the output
-		this.setElevator(OI.normalize(output, -0.5, 0, max));
+		this.setElevator(OI.normalize(output, -.75, 0, max));
 		
 		//If it's close enough, just break and end the loop 
 		// if(error <= error_check) {
@@ -221,8 +210,8 @@ public class Elevator {
 		else if(target < 0)
 			target = 0;
 
-		//System.out.println("Snap to target on");
-	//	System.out.println("Inches: " + inches);
+		System.out.println("Snap to target on");
+		System.out.println("Inches: " + inches);
 	}
 
 	public int findClosest(){
@@ -231,5 +220,18 @@ public class Elevator {
 				return i;
 		}
 		return targets.length-1;
+	}
+
+	public void intTarget(boolean up) {
+		if(up)
+			target++;
+		else 
+			target--;
+
+		if(target < 0){
+			target = 0; 
+		} else if(target >= targets.length){
+			target = targets.length-1;
+		}
 	}
 }

@@ -173,7 +173,7 @@ public class Chassis {
 		double integral = 0; // used to carry the sum of the error
 		double derivative = 0; // used to calculate the change between our goal and position
 		double Kp = 0.005; // proportional constant
-		double Ki = 0.002; // integral constant
+		double Ki = 0; // integral constant
 		double Kd = 0;// 0.002; // derivative constant
 		double goal = angl;
 		// this is what we want the robot to do: go forward,
@@ -327,8 +327,42 @@ public class Chassis {
 
 	// turns to the angle of the limelight target using the PID loop
 	public void turnToAngleLimePID() {
-		double targetAngle = limelight.getHortAngle();
-		turnToAngle(targetAngle, 0.001, false);
+		turnToAngle(limelight.getTX(), 0.001, false);
+	}
+
+	public void simpleLimeTurn(double minAngleError){
+		System.out.println("Turning with TX of: " + getTX());
+		int count = 0;
+		while(count<1000){
+			Timer.delay(0.01);
+
+			double absTX = (limelight.getTX())/30;
+			//driveSpd(limelight.getTX()<0?-absTX:absTX,limelight.getTX()>0?-absTX:absTX);
+			driveSpd(absTX,-absTX);
+			count++;
+			System.out.println("absTx: " + absTX + ", tx:" + limelight.getTX());
+		}
+		//driveSpd(0,0);
+	}
+
+	public void holdLimeTurn(){
+		// double absTX = (limelight.getTX()+5.0)/30;
+		// if(Math.abs(absTX)>0.01 && Math.abs(absTX)<0.025){
+		// 	if(absTX<0){
+		// 		absTX = -0.025;
+		// 	}else{
+		// 		absTX = 0.025;
+		// 	}
+		// }
+		// System.out.println(absTX);
+		// driveSpd(absTX, -absTX);
+		double absTX = (limelight.getTX())/30;
+			//driveSpd(limelight.getTX()<0?-absTX:absTX,limelight.getTX()>0?-absTX:absTX);
+			driveSpd(absTX,-absTX);
+	}
+
+	public double getTX(){
+		return limelight.getTX();
 	}
 
 }

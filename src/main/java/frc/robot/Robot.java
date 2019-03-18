@@ -34,7 +34,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 // Class
 
 public class Robot extends TimedRobot {
-	boolean debugOn = true;
+	boolean debugOn = false;
 
 	boolean autoRun = false;
 	public String switLocal;
@@ -53,7 +53,7 @@ public class Robot extends TimedRobot {
 	LimeCam lime = new LimeCam();
 	int camera = 0; 
 	boolean teleOPInit = false; 
-	boolean fPID = true; 
+	boolean fPID = false; 
 
 	private NetworkTable table = NetworkTableInstance.getDefault().getTable("ElementDashboard");
 	NetworkTableEntry RobotStatus = table.getEntry("RobotStatus");
@@ -99,7 +99,7 @@ public class Robot extends TimedRobot {
 		autoSelected = _chooser.getSelected();
 		autoRun = true;
 		_driver.reset();
-		System.out.println("Auto selected: " + autoSelected);
+		//System.out.println("Auto selected: " + autoSelected);
 		RobotStatus.setString("Running Autonomous");
 		// led.setDutyCycle(1435); //Sets Gray Breathe
 		RobotActive.setBoolean(true);
@@ -167,23 +167,28 @@ public class Robot extends TimedRobot {
 	@Override
 	// Runs Teleop
 	public void teleopPeriodic() {
+		//System.out.println("TX value: " + _driver.chassis.getTX());
+
 		// ElementalDashboard:
 		if(_driver.oi.getXButton()){
 			SmartDashboard.putNumber("rstatus", Math.random());
 		} 
 
+		SmartDashboard.putNumber("ElevatorLevel", _driver.elevator.target);
+
 
 		// DRIVER ONE
 		// Speed control
-		// if (_driver.oi.getAButton())
-		// 	spdMltWheel = 0.5;
-		// else if (_driver.oi.getYButton())
-		// 	spdMltWheel = 1.0; 
+		if (_driver.oi.getLT() > .25)
+			spdMltWheel = 0.5;
+		else if (_driver.oi.getRT() > .25)
+			spdMltWheel = 0.75; 
 
 		// Wheel Stuff
-		_driver.chassis.drive(OI.normalize(_driver.oi.getRJoystickXAxis(), -1.0, 0, 1.0) * spdMltWheel,
-				OI.normalize(_driver.oi.getLJoystickYAxis(), -1.0, 0, 1.0) * spdMltWheel);
+		_driver.chassis.drive(OI.normalize(_driver.oi.getRJoystickXAxis(), -spdMltWheel, 0, spdMltWheel),
+				OI.normalize(_driver.oi.getLJoystickYAxis(), -spdMltWheel, 0, spdMltWheel));
 
+				//System.out.println("Speed: " + _driver.chassis._backLeft.getMotorOutputPercent());
 		//Switch
 		if(_driver.oi.getStart()){
 			camera++;
@@ -196,8 +201,8 @@ public class Robot extends TimedRobot {
 		// MECHANISMS
 		/**
 		 * To program mechanisms, look for t0/-he specific methods within the OI class
-		 * for input Then look with the class of the mechanism you want to program, and
 		 * use the input accordingly
+		 * for input Then look with the class of the mechanism you want to program, and
 		 */
 		// NOTE: The conditional for the reverse (if(_driver.oi.getLB)) must be in the
 		// form of else if
@@ -211,17 +216,18 @@ public class Robot extends TimedRobot {
 		 * if(LB) set(-speed); else set(0.0); <====This statement right here will cancel
 		 * out the previous set(+speed) when RB is held
 		 */
-		if (_driver.cam.getTargets() > 0.0) {
-			double eDVT = _driver.cam.estimateDistanceViaTrig();
-			System.out.println(eDVT);
-		}
 		// DRIVER TWO
 		double spdMlt = 1.0;
 		// Climber Stuff: Checks the bumpers and stuff
-		if (_driver.oi.getRB())
+		if (_driver.oi.getLB()){
+			if(_driver.climber.getLimit()){
+				_driver.climber.setClimberFront(0);
+				System.out.println("stop the climber!!!");
+			}else{
+				_driver.climber.setClimberFront(-spdMlt * 0.75);
+			}
+		}else if (_driver.oi.getRB())
 			_driver.climber.setClimberFront(spdMlt * 0.75);
-		else if (_driver.oi.getLB())
-			_driver.climber.setClimberFront(-spdMlt * 0.75);
 		else
 			_driver.climber.setClimberFront(0);
 
@@ -235,12 +241,19 @@ public class Robot extends TimedRobot {
 		// Elevator stuff
 		if (_driver.oi.getRTC2() > 0.00) {
 			_driver.elevator.setElevator(OI.normalize(_driver.oi.getRTC2(), -1.0, 0.0, 1.0));
+			//_driver.elevator.addInches(true);
 		} else if (_driver.oi.getLTC2() > 0.00) {
-			_driver.elevator.setElevator(OI.normalize(_driver.oi.getLTC2(), -1.0, 0.0, 1.0)*-0.7);
+			_driver.elevator.setElevator(OI.normalize(_driver.oi.getLTC2(), -1.0, 0.0, 1.0)*-1.0);
+			//_driver.elevator.addInches(false);
 		} else if (!fPID){
 			_driver.elevator.runPID(0.02, false);
 		} else {
 			_driver.elevator.setElevator(0.110);
+		}
+
+		if(_driver.oi.getAButton()){
+		//	System.out.println("Holding Lime Turn");
+			_driver.chassis.holdLimeTurn();
 		}
 		// System.out.println("Elevator Pos: " + _driver.elevator.getDistance());
 
@@ -250,9 +263,9 @@ public class Robot extends TimedRobot {
 		if (_driver.oi.getUpPadC2() || _driver.oi.getDownPadC2()) {
 			if (!isPadPressed) {
 				if(_driver.oi.getUpPadC2())
-					_driver.elevator.snapToHeight(true);
+					_driver.elevator.intTarget(true);
 				else if(_driver.oi.getDownPadC2())
-					_driver.elevator.snapToHeight(false);
+					_driver.elevator.intTarget(false);
 				isPadPressed = true;
 			}
 		} else {
@@ -279,14 +292,11 @@ public class Robot extends TimedRobot {
 		// 		_driver.intake.setIntake(0.0);
 		// }
 
-		if (limeCamPid) {
-			_driver.chassis.initTurnPID(lime.getHortAngle(), 0.01);
-			_driver.chassis.runTurnPID(true);
-		}
+	
 
-		if (_driver.oi.getAButton()) {
-			limeCamPid = true;
-		}
+		// if (_driver.oi.getAButton()) {
+		// 	limeCamPid = true;
+		// }
 
 		if (_driver.oi.getYButton()) {
 			limeCamPid = false;
