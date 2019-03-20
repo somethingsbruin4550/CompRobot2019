@@ -13,6 +13,8 @@ public class Elevator {
 	Encoder encoder;
 	OI oi = new OI();
 
+	int mod = 0;
+
 	double inches = 0; 
 
 	boolean elevatorAdjusting;
@@ -37,9 +39,9 @@ public class Elevator {
 	double goal;
 	double[] targets = {		
 		 -5.5,
-		 0.0 + 3.5, //Hatch 1
+		 0.0 + 1.5, //Hatch 1
 		 19.0, //Cargo 1
-		 28.5 + 1.5, //Hatch 2
+		 27.0 + 1.5, //Hatch 2
 		 47.0, //Cargo 2
 		 55.5 + 1.5, //Hatch 3
 		 75.0, //Cargo 3
@@ -152,7 +154,7 @@ public class Elevator {
 	 */
 	public void runPID( double dt, boolean debugOn){
 		inches = targets[target];
-		goal = (inches+baseHeight) * ticsPerInch;
+		goal = (inches+baseHeight + mod) * ticsPerInch;
 
 		error_check = goal/150; //Sets the error_check
 		//Reset the Position

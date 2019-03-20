@@ -54,6 +54,8 @@ public class Robot extends TimedRobot {
 	int camera = 0; 
 	boolean teleOPInit = false; 
 	boolean fPID = false; 
+	double spdMlt = 1.0;
+
 
 	private NetworkTable table = NetworkTableInstance.getDefault().getTable("ElementDashboard");
 	NetworkTableEntry RobotStatus = table.getEntry("RobotStatus");
@@ -126,9 +128,19 @@ public class Robot extends TimedRobot {
 				// _driver.elevator.returnToZero(3.0);
 				_driver.elevator.setDriverTarget(0);
 				_driver.elevator.initPID();
+				_driver.chassis.initTurnPID(-5, .02);
 				RobotStatus.setString("Running Teleop");
 				// _driver.chassis.initTurnPID(180, 0.001);
 				RobotActive.setBoolean(true);
+				_driver.elevator.setElevator(.75);
+				Timer.delay(.6);
+				_driver.elevator.setElevator(0);
+				Timer.delay(.25);
+				_driver.elevator.setElevator(-.25);
+				Timer.delay(.4);
+				_driver.chassis.driveSpd(-.25, -.25);
+				Timer.delay(1);
+				_driver.chassis.driveSpd(0,0);
 				SmartDashboard.putBoolean("Elevator Pid Enabled", true);
 				teleOPInit = true; 
 				break;
@@ -154,6 +166,7 @@ public class Robot extends TimedRobot {
 			// _driver.elevator.returnToZero(3.0);
 			_driver.elevator.setDriverTarget(0);
 			_driver.elevator.initPID();
+			_driver.chassis.initTurnPID(-5, .02);
 			RobotStatus.setString("Running Teleop");
 			// _driver.chassis.initTurnPID(180, 0.001);
 			RobotActive.setBoolean(true);
@@ -170,11 +183,11 @@ public class Robot extends TimedRobot {
 		//System.out.println("TX value: " + _driver.chassis.getTX());
 
 		// ElementalDashboard:
-		if(_driver.oi.getXButton()){
-			SmartDashboard.putNumber("rstatus", Math.random());
-		} 
+		// if(_driver.oi.getXButton()){
+		// 	SmartDashboard.putNumber("rstatus", Math.random());
+		// } 
 
-		SmartDashboard.putNumber("ElevatorLevel", _driver.elevator.target);
+		 SmartDashboard.putNumber("ElevatorLevel", _driver.elevator.target);
 
 
 		// DRIVER ONE
@@ -190,12 +203,12 @@ public class Robot extends TimedRobot {
 
 				//System.out.println("Speed: " + _driver.chassis._backLeft.getMotorOutputPercent());
 		//Switch
-		if(_driver.oi.getStart()){
-			camera++;
-			if(camera > 1)
-				camera = 0;
-			table.getEntry("cameraToggle").setNumber(camera);
-		}
+		// if(_driver.oi.getStart()){
+		// 	camera++;
+		// 	if(camera > 1)
+		// 		camera = 0;
+		// 	table.getEntry("cameraToggle").setNumber(camera);
+		// }
 
 		
 		// MECHANISMS
@@ -217,19 +230,17 @@ public class Robot extends TimedRobot {
 		 * out the previous set(+speed) when RB is held
 		 */
 		// DRIVER TWO
-		double spdMlt = 1.0;
+		
 		// Climber Stuff: Checks the bumpers and stuff
+		
 		if (_driver.oi.getLB()){
-			if(_driver.climber.getLimit()){
-				_driver.climber.setClimberFront(0);
-				System.out.println("stop the climber!!!");
-			}else{
-				_driver.climber.setClimberFront(-spdMlt * 0.75);
-			}
-		}else if (_driver.oi.getRB())
-			_driver.climber.setClimberFront(spdMlt * 0.75);
-		else
+			if(_driver.climber.getLimit())
+			_driver.climber.setClimberFront(-spdMlt * 0.75);
+		}else if (_driver.oi.getRB()){
+				_driver.climber.setClimberFront(spdMlt * 0.75);
+		}else{
 			_driver.climber.setClimberFront(0);
+		}
 
 		if (_driver.oi.getRBC2())
 			_driver.climber.setClimberBack(spdMlt * 0.75);
@@ -245,16 +256,14 @@ public class Robot extends TimedRobot {
 		} else if (_driver.oi.getLTC2() > 0.00) {
 			_driver.elevator.setElevator(OI.normalize(_driver.oi.getLTC2(), -1.0, 0.0, 1.0)*-1.0);
 			//_driver.elevator.addInches(false);
-		} else if (!fPID){
+		} else{{
 			_driver.elevator.runPID(0.02, false);
-		} else {
-			_driver.elevator.setElevator(0.110);
 		}
 
-		if(_driver.oi.getAButton()){
-		//	System.out.println("Holding Lime Turn");
-			_driver.chassis.holdLimeTurn();
-		}
+		// if(_driver.oi.getAButton()){
+		// //	System.out.println("Holding Lime Turn");
+		// 	_driver.chassis.runTurnPID(false);
+		// }
 		// System.out.println("Elevator Pos: " + _driver.elevator.getDistance());
 
 		// System.out.println("Elevator Encoder: " + _driver.elevator.getDistance());
@@ -292,17 +301,22 @@ public class Robot extends TimedRobot {
 		// 		_driver.intake.setIntake(0.0);
 		// }
 
-	
+	if(_driver.oi.getXButtonC2()){
+		_driver.elevator.mod = -5;
+	}
+
+	if(_driver.oi.getX2Released()){
+		_driver.elevator.mod = 0;
+	}
 
 		// if (_driver.oi.getAButton()) {
 		// 	limeCamPid = true;
 		// }
 
-		if (_driver.oi.getYButton()) {
-			limeCamPid = false;
-		}
+		
 
 	}
+}
 
 	/**
 	 * This function is called periodically during test mode

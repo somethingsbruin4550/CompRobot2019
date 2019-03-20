@@ -272,6 +272,11 @@ public class OI {
 		return _controller.getRawButtonReleased(A_BUTTON);
 	}
 
+	public boolean getX2Released()
+	{
+		return _controller2.getRawButtonReleased(X_BUTTON);
+	}
+
 	public boolean getYReleased()
 	{
 		return _controller.getRawButtonReleased(Y_BUTTON);

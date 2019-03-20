@@ -36,6 +36,7 @@ public class Climber {
 
 	public boolean getLimit(){
 		return frontLimit.get();
+		//return false;
 	}
 
 }

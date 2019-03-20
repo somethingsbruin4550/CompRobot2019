@@ -230,62 +230,63 @@ public class Chassis {
 
 	public void initTurnPID(double angle, double delay) {
 		feed_forward = 0.0234375; // forward input to reduce the steady state error
-		max = 0.275; // used to clamp the max speed, to slow down the robot
+		max = 0.75; // used to clamp the max speed, to slow down the robot
 		previous_error = 0; // used to calculate the derivative value
 		integral = 0; // used to carry the sum of the error
 		derivative = 0; // used to calculate the change between our goal and position
-		Kp = 0.005; // proportional constant
-		Ki = 0.002; // integral constant
+		Kp = 0.05; // proportional constant
+		Ki = 0; // integral constant
 		Kd = 0;// 0.002; // derivative constant
 		goal = angle;
 		// this is what we want the robot to do: go forward,
 		// turn, elevate, etc to a new position)
 		dt = delay;
 		// this is the wait period for the loop e.g. 1/100s)
-		position = this.getAngle(); // current position in inches/feed, degrees, etc.)
+		position = this.getTX(); // current position in inches/feed, degrees, etc.)
 		error = 0; // our goal is to make the error from the current position zero)
 		error_check = goal / 100;
 	}
 
 	public void runTurnPID(boolean debug) {
 		// Reset the Position
-		position = this.getAngle();
+		position = this.getTX();
+		
 		// Calculates the error based on how far the robot is from the dist
 		error = goal - position;
 		// Calculates the Integral based on the error, delay, and the previous integral
-		integral = integral + error * dt;
+		//integral = integral + error * dt;
 		// Calculates the derivative based on the error and the delay
-		derivative = (error - previous_error) / dt;
+		//derivative = (error - previous_error) / dt;
 		// MATH
-		double output = Kp * error + Ki * integral + Kd * derivative + feed_forward;
+		double output = OI.normalize((Kp * error + feed_forward), -max, 0, max);
 		// Passes on the error to the previous error
 		previous_error = error;
 
 		// NORMALIZE: If the spd is bigger than we want, set it to the max, if its less
 		// than the -max makes it the negitive max
-		if (output > max)
-			output = max;
-		else if (output < -max)
-			output = -max;
+		// if (output > max)
+		// 	output = max;
+		// else if (output < -max)
+		// 	output = -max;
 
 		// After the spd has been fixed, set the speed to the output
-		this.driveSpd(output, -output);
+		this.driveSpd(-output, output);
 
 		// If it's close enough, just break and end the loop
-		if (error <= error_check) {
-			System.out.println("break");
-			// break;
-		}
+		// if (error <= error_check) {
+		// 	System.out.println("break");
+		// 	// break;
+		// }
 
 		// Delay(Uses dt)
-		Timer.delay(dt);
-		if (debug) {
-			System.out.println("Position: " + position);
-			System.out.println("Error: " + error);
-			System.out.println("Output: " + output);
-			System.out.println("Integral: " + integral);
+	//	Timer.delay(dt);
+		// if (debug) {
+		// 	System.out.println("Position: " + position);
+		// 	System.out.println("Error: " + error);
+		// 	System.out.println("Output: " + output);
+		// 	System.out.println("Integral: " + integral);
 
-		}
+		// }
 	}
 
 	// Drives both motors a certain speed
@@ -347,18 +348,18 @@ public class Chassis {
 
 	public void holdLimeTurn(){
 		// double absTX = (limelight.getTX()+5.0)/30;
-		// if(Math.abs(absTX)>0.01 && Math.abs(absTX)<0.025){
+		// if(Math.abs(absTX)<0.01 && Math.abs(absTX)<0.025){
 		// 	if(absTX<0){
-		// 		absTX = -0.025;
+		// 		absTX = -0.25;
 		// 	}else{
-		// 		absTX = 0.025;
+		// 		absTX = 0.25;
 		// 	}
 		// }
 		// System.out.println(absTX);
 		// driveSpd(absTX, -absTX);
-		double absTX = (limelight.getTX())/30;
+		double absTX = (limelight.getTX() - 6)/30;
 			//driveSpd(limelight.getTX()<0?-absTX:absTX,limelight.getTX()>0?-absTX:absTX);
-			driveSpd(absTX,-absTX);
+			driveSpd(OI.normalize(absTX + .237,-.5,0,.5) ,OI.normalize(-absTX - .237,-.5,0,.5));
 	}
 
 	public double getTX(){
