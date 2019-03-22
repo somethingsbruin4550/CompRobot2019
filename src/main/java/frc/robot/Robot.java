@@ -159,6 +159,7 @@ public class Robot extends TimedRobot {
 		if(!teleOPInit){
 			_driver.reset();
 			_driver.elevator.reset();
+			_driver.elevator.target = 0;
 			spdMltWheel = 0.5;
 			isPadPressed = false;
 			eleHeight = 0;
@@ -187,8 +188,7 @@ public class Robot extends TimedRobot {
 		// 	SmartDashboard.putNumber("rstatus", Math.random());
 		// } 
 
-		 SmartDashboard.putNumber("ElevatorLevel", _driver.elevator.target);
-
+		// SmartDashboard.putNumber("ElevatorLevel", _driver.elevator.target);		
 
 		// DRIVER ONE
 		// Speed control
@@ -234,7 +234,6 @@ public class Robot extends TimedRobot {
 		// Climber Stuff: Checks the bumpers and stuff
 		
 		if (_driver.oi.getLB()){
-			if(_driver.climber.getLimit())
 			_driver.climber.setClimberFront(-spdMlt * 0.75);
 		}else if (_driver.oi.getRB()){
 				_driver.climber.setClimberFront(spdMlt * 0.75);
@@ -250,14 +249,15 @@ public class Robot extends TimedRobot {
 			_driver.climber.setClimberBack(0);
 
 		// Elevator stuff
-		if (_driver.oi.getRTC2() > 0.00) {
+		if (_driver.oi.getRTC2() > 0.1) {
 			_driver.elevator.setElevator(OI.normalize(_driver.oi.getRTC2(), -1.0, 0.0, 1.0));
 			//_driver.elevator.addInches(true);
-		} else if (_driver.oi.getLTC2() > 0.00) {
-			_driver.elevator.setElevator(OI.normalize(_driver.oi.getLTC2(), -1.0, 0.0, 1.0)*-1.0);
+		} else if (_driver.oi.getLTC2() > 0.1) {
+			_driver.elevator.setElevator(OI.normalize(_driver.oi.getLTC2(), -1.00, 0.0, 0.85)*-1.0);
 			//_driver.elevator.addInches(false);
-		} else{{
-			_driver.elevator.runPID(0.02, false);
+		} else{
+			_driver.elevator.setElevator(0.11);
+		
 		}
 
 		// if(_driver.oi.getAButton()){
@@ -269,7 +269,7 @@ public class Robot extends TimedRobot {
 		// System.out.println("Elevator Encoder: " + _driver.elevator.getDistance());
 
 		//Switch
-		if (_driver.oi.getUpPadC2() || _driver.oi.getDownPadC2()) {
+		if (_driver.oi.getDownPadC2() || _driver.oi.getUpPadC2()) {
 			if (!isPadPressed) {
 				if(_driver.oi.getUpPadC2())
 					_driver.elevator.intTarget(true);
@@ -316,7 +316,7 @@ public class Robot extends TimedRobot {
 		
 
 	}
-}
+
 
 	/**
 	 * This function is called periodically during test mode
@@ -325,7 +325,7 @@ public class Robot extends TimedRobot {
 	public void testPeriodic() {
 		// For testing purposes only, this is an infinte loop, similar to teleOP
 		// perodic, and autonomousPerodic
-		// _driver.elevator.returnToZero(2.0);
+		 _driver.elevator.returnToZero(2.0);
 		// _driver.elevator.setElevatorHeight(1.0, 0.01, false, 0.07);
 
 	}

@@ -301,7 +301,7 @@ public class Chassis {
 	public void reset() {
 		//_leftEncoder.reset();
 		//_rightEncoder.reset();
-		_gyro.reset();
+		//_gyro.reset();
 	}
 
 	// Checks and returns angle

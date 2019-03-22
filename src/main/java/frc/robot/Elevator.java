@@ -17,9 +17,9 @@ public class Elevator {
 
 	double inches = 0; 
 
-	boolean elevatorAdjusting;
+//	boolean elevatorAdjusting;
 	int driverTarget = 0;
-	boolean withinTarget;
+//	boolean withinTarget;
 		
 	double ticsPerInch = 43.8602409;//526.322891; //encoder ticks per inch
 
@@ -39,12 +39,12 @@ public class Elevator {
 	double goal;
 	double[] targets = {		
 		 -5.5,
-		 0.0 + 1.5, //Hatch 1
-		 19.0, //Cargo 1
-		 27.0 + 1.5, //Hatch 2
-		 47.0, //Cargo 2
-		 55.5 + 1.5, //Hatch 3
-		 75.0, //Cargo 3
+		 0.0 + 3 , //Hatch 1
+		 16.0, //Cargo 1
+		 26.50, //Hatch 2
+		 44.0, //Cargo 2
+		 55, //Hatch 3
+		 71.0, //Cargo 3
 	};
 	int target = 0; 
 	double position; // current position in inches/feed, degrees, etc.)
@@ -67,6 +67,7 @@ public class Elevator {
 	 */
 	public void setElevator(double speed){
 		talon1.set(speed);
+		//System.out.println(speed);
 	}
 
 	/**
@@ -74,7 +75,7 @@ public class Elevator {
 	 * @return Encoder Value in tics
 	 */
 	public double getDistance() {
-		return -encoder.getDistance();
+		return encoder.getDistance();
 	}
 
 	/**
@@ -117,8 +118,8 @@ public class Elevator {
 	 * For calculating Constants, they can be found here: https://frc-pdr.readthedocs.io/en/latest/control/pid_control.html
 	 */
 	public void initPID(){
-		elevatorAdjusting = true;
-		withinTarget = false;
+		//elevatorAdjusting = true;
+		//withinTarget = false;
 
 		baseHeight = 5.5; //Base elevator height in Inches
 
@@ -156,7 +157,7 @@ public class Elevator {
 		inches = targets[target];
 		goal = (inches+baseHeight + mod) * ticsPerInch;
 
-		error_check = goal/150; //Sets the error_check
+		//error_check = goal/150; //Sets the error_check
 		//Reset the Position
 		position = this.getDistance();
 		//Calculates the error based on how far the robot is from the dist
@@ -174,7 +175,7 @@ public class Elevator {
 		
 		//After the spd has been fixed, set the speed to the output
 		this.setElevator(OI.normalize(output, -.75, 0, max));
-		
+		//System.out.println(OI.normalize(output, -.75, 0, max));
 		//If it's close enough, just break and end the loop 
 		// if(error <= error_check) {
 		// 	System.out.println("Elevator PID within target. Exiting...");
