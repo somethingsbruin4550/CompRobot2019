@@ -39,6 +39,7 @@ public class Robot extends TimedRobot {
 	boolean autoRun = false;
 	public String switLocal;
 	final String DEFAULT_AUTO = "Default"; // should capatalize
+	final String DISABLE_AUTO = "Disabled Auto"; // should capatalize
 
 	String autoSelected;
 	private SendableChooser<String> _chooser;
@@ -73,6 +74,7 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putNumber("rstatus", Math.random());
 		_chooser = new SendableChooser<String>();
 		_chooser.addDefault("Default Auto", DEFAULT_AUTO);
+		_chooser.addOption("Disable Auto", DISABLE_AUTO);
 		SmartDashboard.putData("Auto choices", _chooser);
 
 		// SmartDashboard.putBoolean("Disable Elevator PID", );
@@ -144,6 +146,23 @@ public class Robot extends TimedRobot {
 				SmartDashboard.putBoolean("Elevator Pid Enabled", true);
 				teleOPInit = true; 
 				break;
+			case DISABLE_AUTO:
+			_driver.reset();
+			_driver.elevator.reset();
+			spdMltWheel = 0.5;
+			isPadPressed = false;
+			eleHeight = 0;
+			/// led.setDutyCycle(1425); //Sets Blue Breathe
+			// _driver.elevator.returnToZero(3.0);
+			_driver.elevator.setDriverTarget(0);
+			_driver.elevator.initPID();
+			_driver.chassis.initTurnPID(-5, .02);
+			RobotStatus.setString("Running Teleop");
+			// _driver.chassis.initTurnPID(180, 0.001);
+			RobotActive.setBoolean(true);
+			SmartDashboard.putBoolean("Elevator Pid Enabled", true);
+			teleOPInit = true; 
+			break;
 			default:
 				// Put default auto code here
 				break;
@@ -256,7 +275,7 @@ public class Robot extends TimedRobot {
 			_driver.elevator.setElevator(OI.normalize(_driver.oi.getLTC2(), -1.00, 0.0, 0.85)*-1.0);
 			//_driver.elevator.addInches(false);
 		} else{
-			_driver.elevator.setElevator(0.11);
+			_driver.elevator.setElevator(0.15);
 		
 		}
 
