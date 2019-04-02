@@ -56,7 +56,12 @@ public class Robot extends TimedRobot {
 	boolean teleOPInit = false; 
 	boolean fPID = false; 
 	double spdMlt = 1.0;
-
+	double target;
+	double speed = 0;
+	double lowestSpeed = 0.2;
+	double highestSpeed = 0.4;
+	//boolean running = true;
+	double bounds = 0.08;
 
 	private NetworkTable table = NetworkTableInstance.getDefault().getTable("ElementDashboard");
 	NetworkTableEntry RobotStatus = table.getEntry("RobotStatus");
@@ -121,30 +126,31 @@ public class Robot extends TimedRobot {
 		if (autoRun) {
 			switch (autoSelected) {
 			case DEFAULT_AUTO:
-				_driver.reset();
-				_driver.elevator.reset();
-				spdMltWheel = 0.5;
-				isPadPressed = false;
-				eleHeight = 0;
-				/// led.setDutyCycle(1425); //Sets Blue Breathe
-				// _driver.elevator.returnToZero(3.0);
-				_driver.elevator.setDriverTarget(0);
-				_driver.elevator.initPID();
-				_driver.chassis.initTurnPID(-5, .02);
-				RobotStatus.setString("Running Teleop");
-				// _driver.chassis.initTurnPID(180, 0.001);
-				RobotActive.setBoolean(true);
-				_driver.elevator.setElevator(.75);
-				Timer.delay(.6);
-				_driver.elevator.setElevator(0);
-				Timer.delay(.25);
-				_driver.elevator.setElevator(-.25);
-				Timer.delay(.4);
-				_driver.chassis.driveSpd(-.25, -.25);
-				Timer.delay(1);
-				_driver.chassis.driveSpd(0,0);
-				SmartDashboard.putBoolean("Elevator Pid Enabled", true);
-				teleOPInit = true; 
+				// _driver.reset();
+				// _driver.elevator.reset();
+				// spdMltWheel = 0.5;
+				// isPadPressed = false;
+				// eleHeight = 0;
+				// /// led.setDutyCycle(1425); //Sets Blue Breathe
+				// // _driver.elevator.returnToZero(3.0);
+				// _driver.elevator.setDriverTarget(0);
+				// _driver.elevator.initPID();
+				// _driver.chassis.initTurnPID(-5, .02);
+				// RobotStatus.setString("Running Teleop");
+				// // _driver.chassis.initTurnPID(180, 0.001);
+				// RobotActive.setBoolean(true);
+				// _driver.elevator.setElevator(.75);
+				// Timer.delay(.6);
+				// _driver.elevator.setElevator(0);
+				// Timer.delay(.25);
+				// _driver.elevator.setElevator(-.25);
+				// Timer.delay(.4);
+				// _driver.chassis.driveSpd(-.25, -.25);
+				// Timer.delay(1);
+				// _driver.chassis.driveSpd(0,0);
+				// SmartDashboard.putBoolean("Elevator Pid Enabled", true);
+				// teleOPInit = true; 
+				_driver.chassis.simpleLimeTurn();
 				break;
 			case DISABLE_AUTO:
 			_driver.reset();
@@ -200,6 +206,7 @@ public class Robot extends TimedRobot {
 	@Override
 	// Runs Teleop
 	public void teleopPeriodic() {
+		
 		//System.out.println("TX value: " + _driver.chassis.getTX());
 
 		// ElementalDashboard:
@@ -208,13 +215,52 @@ public class Robot extends TimedRobot {
 		// } 
 
 		// SmartDashboard.putNumber("ElevatorLevel", _driver.elevator.target);		
-
 		// DRIVER ONE
 		// Speed control
 		if (_driver.oi.getLT() > .25)
 			spdMltWheel = 0.5;
 		else if (_driver.oi.getRT() > .25)
 			spdMltWheel = 0.75; 
+		
+		_driver.chassis.limelight.setLED(true);
+		// Limelight Align:
+		if(_driver.oi.getAButton()) {
+			//_driver.chassis.simpleLimeTurn();
+			
+			//Timer.delay(0.5);
+			target = _driver.chassis.limelight.estimateTargetAngle();//getFinalLimelightAngle();
+			speed = OI.normalize(target/32, -highestSpeed, 0, highestSpeed);
+			//System.out.println("Target S: " + target);
+			System.out.println("Speed: " + speed);
+
+			if(target!=0){
+				if(Math.abs(speed)<lowestSpeed){
+					System.out.println("Adjusting speed!");
+					if(speed<0){
+						_driver.chassis.driveSpd(-lowestSpeed,lowestSpeed);
+					}else if(speed>0){
+						_driver.chassis.driveSpd(lowestSpeed,-lowestSpeed);
+					}
+				}else{
+					_driver.chassis.driveSpd(speed, -speed);
+				}
+			}
+			else{
+				System.out.println("Target is perfect or it's not connected");
+				//running = false;
+				//break;
+			}
+
+			if(target >= -bounds && target <= bounds){
+				_driver.chassis.driveSpd(0,0);
+				//limelight.setLED(false);
+				//running = false;
+				System.out.println("Within threshold; exiting loop");
+			}
+		} /*else {
+			_driver.chassis.limelight.setLED(false);
+		}*/
+		
 
 		// Wheel Stuff
 		_driver.chassis.drive(OI.normalize(_driver.oi.getRJoystickXAxis(), -spdMltWheel, 0, spdMltWheel),
@@ -275,7 +321,7 @@ public class Robot extends TimedRobot {
 			_driver.elevator.setElevator(OI.normalize(_driver.oi.getLTC2(), -1.00, 0.0, 0.85)*-1.0);
 			//_driver.elevator.addInches(false);
 		} else{
-			_driver.elevator.setElevator(0.15);
+			_driver.elevator.setElevator(0.08);
 		
 		}
 

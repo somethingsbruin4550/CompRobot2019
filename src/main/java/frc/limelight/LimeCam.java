@@ -1,5 +1,6 @@
 
 package frc.limelight;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -12,11 +13,13 @@ public class LimeCam {
     NetworkTableEntry tx = table.getEntry("tx");
     NetworkTableEntry ty = table.getEntry("ty");
     NetworkTableEntry ta = table.getEntry("ta");
+    NetworkTableEntry ledMode = table.getEntry("ledMode");
 
     //read values periodically
     double x = tx.getDouble(0.0);
     double y = ty.getDouble(0.0);
     double area = ta.getDouble(0.0);
+    double led = ledMode.getDouble(-1);
     
     
     
@@ -29,9 +32,15 @@ public class LimeCam {
     //Uses the area of the recongiized object to calculate the distance
     //Sees the percentage of the screen that the object is taking up, and returns the distance 
     public double estimateDistanceViaArea(){
-        final double PROPCONST = 20.0; //need to measure
-        double dist = ta.getDouble(0.0)*PROPCONST;
+        //final double PROPCONST = 9.75; //need to measure
+        double dist = 73.7 - 21.6 * Math.log(ta.getDouble(0.0));//*PROPCONST;
+        System.out.println("Distance from limelight: " + dist);
         return dist;
+    }
+
+    public double estimateTargetAngle(){
+        double offset = -6.26 - 4.55 * Math.log(ta.getDouble(0.0));
+        return tx.getDouble(0) - offset;
     }
 
     //Elitimates the distance using DIFFERENT MATH:
@@ -91,4 +100,26 @@ public class LimeCam {
         return x;
     }
 
+    public double getTargetAngle() {
+        double targetAngle = 0;
+        double distFromCenter = 0;
+        double limelightToCenter = 7.75; //need to measure this value
+        distFromCenter = Math.sqrt(Math.pow(estimateDistanceViaArea(), 2) + Math.pow(limelightToCenter, 2) - 2 * limelightToCenter * estimateDistanceViaArea() * Math.cos(getTX()));
+        System.out.println("Distance from center: " +distFromCenter);
+        targetAngle = getTX() * estimateDistanceViaArea() /  distFromCenter; 
+        return targetAngle;
+    }
+
+    /**
+     * 
+     * @param lightOn
+     */
+    public void setLED(boolean lightOn){
+        if(!lightOn){
+            ledMode.setNumber(1);
+        }
+        else{
+            ledMode.setNumber(3);
+        }
+    }
 }

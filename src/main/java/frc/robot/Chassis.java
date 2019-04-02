@@ -331,39 +331,66 @@ public class Chassis {
 		turnToAngle(limelight.getTX(), 0.001, false);
 	}
 
-	public void simpleLimeTurn(double minAngleError){
-		System.out.println("Turning with TX of: " + getTX());
-		int count = 0;
-		while(count<1000){
-			Timer.delay(0.01);
+	public void simpleLimeTurn(){
+		limelight.setLED(true);
+		Timer.delay(0.5);
+		//double initA = 
+		double target;
+		double speed = 0;
+		double lowestSpeed = 0.2;
+		double highestSpeed = 0.4;
+		boolean running = true;
+		double bounds = 0.08;
+		while(running){
+			target = limelight.estimateTargetAngle();//getFinalLimelightAngle();
+			speed = OI.normalize(target/32, -highestSpeed, 0, highestSpeed);
+			//System.out.println("Target S: " + target);
+			System.out.println("Speed: " + speed);
 
-			double absTX = (limelight.getTX())/30;
-			//driveSpd(limelight.getTX()<0?-absTX:absTX,limelight.getTX()>0?-absTX:absTX);
-			driveSpd(absTX,-absTX);
-			count++;
-			System.out.println("absTx: " + absTX + ", tx:" + limelight.getTX());
+			if(target!=0){
+				if(Math.abs(speed)<lowestSpeed){
+					System.out.println("Adjusting speed!");
+					if(speed<0){
+						driveSpd(-lowestSpeed,lowestSpeed);
+					}else if(speed>0){
+						driveSpd(lowestSpeed,-lowestSpeed);
+					}
+				}else{
+					driveSpd(speed, -speed);
+				}
+			}
+			else{
+				System.out.println("Target is perfect or it's not connected");
+				running = false;
+			}
+
+			if(target >= -bounds && target <= bounds){
+				driveSpd(0,0);
+				//limelight.setLED(false);
+				running = false;
+				System.out.println("Withing threshold; exiting loop");
+			}
+
 		}
-		//driveSpd(0,0);
 	}
 
 	public void holdLimeTurn(){
-		// double absTX = (limelight.getTX()+5.0)/30;
-		// if(Math.abs(absTX)<0.01 && Math.abs(absTX)<0.025){
-		// 	if(absTX<0){
-		// 		absTX = -0.25;
-		// 	}else{
-		// 		absTX = 0.25;
-		// 	}
-		// }
-		// System.out.println(absTX);
-		// driveSpd(absTX, -absTX);
-		double absTX = (limelight.getTX() - 6)/30;
-			//driveSpd(limelight.getTX()<0?-absTX:absTX,limelight.getTX()>0?-absTX:absTX);
-			driveSpd(OI.normalize(absTX + .237,-.5,0,.5) ,OI.normalize(-absTX - .237,-.5,0,.5));
+		double absTX = limelight.getTX()/30;
+		driveSpd(absTX, -absTX);
+		driveSpd(0,0);
 	}
 
 	public double getTX(){
 		return limelight.getTX();
+	}
+
+	public double getFinalLimelightAngle(){
+		System.out.println(limelight.getTargetAngle());
+		return limelight.getTargetAngle();
+	}
+
+	public void setLimelightLED(boolean lightOn){
+		limelight.setLED(lightOn);
 	}
 
 }

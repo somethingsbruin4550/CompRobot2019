@@ -6,6 +6,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.ControlMode;
+
 
 public class Elevator {
 	//Creates the elevator talon
@@ -57,6 +60,7 @@ public class Elevator {
 	//Builds the elevator talon
 	public Elevator(){
 		talon1 = new CCTalon(RobotMap.ELEVATOR, false);
+		
 		encoder  = new Encoder(RobotMap.ENCODER_ELEVATOR_A, RobotMap.ENCODER_ELEVATOR_B);
 		ElevatorLevel.setString("VOID");
 	}
@@ -91,6 +95,7 @@ public class Elevator {
 	 */
 	public void reset(){
 		encoder.reset();
+		
 	}
 
 	/**
