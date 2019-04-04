@@ -58,10 +58,10 @@ public class Robot extends TimedRobot {
 	double spdMlt = 1.0;
 	double target;
 	double speed = 0;
-	double lowestSpeed = 0.2;
+	double lowestSpeed = 0.23;
 	double highestSpeed = 0.4;
 	//boolean running = true;
-	double bounds = 0.08;
+	double bounds = 0.5;
 
 	private NetworkTable table = NetworkTableInstance.getDefault().getTable("ElementDashboard");
 	NetworkTableEntry RobotStatus = table.getEntry("RobotStatus");
@@ -206,7 +206,7 @@ public class Robot extends TimedRobot {
 	@Override
 	// Runs Teleop
 	public void teleopPeriodic() {
-		
+		_driver.chassis.limelight.setLED(false);
 		//System.out.println("TX value: " + _driver.chassis.getTX());
 
 		// ElementalDashboard:
@@ -226,14 +226,16 @@ public class Robot extends TimedRobot {
 		// Limelight Align:
 		if(_driver.oi.getAButton()) {
 			//_driver.chassis.simpleLimeTurn();
-			
+			_driver.chassis.limelight.setLED(true);
 			//Timer.delay(0.5);
 			target = _driver.chassis.limelight.estimateTargetAngle();//getFinalLimelightAngle();
-			speed = OI.normalize(target/32, -highestSpeed, 0, highestSpeed);
+			speed = OI.normalize(target/20/*32*/, -highestSpeed, 0, highestSpeed);
 			//System.out.println("Target S: " + target);
 			System.out.println("Speed: " + speed);
+			System.out.println("Target: " + target);
 
-			if(target!=0){
+			if(_driver.chassis.limelight.targetExists() && !(target >= -bounds && target <= bounds)){
+				System.out.println("Within bounds!");
 				if(Math.abs(speed)<lowestSpeed){
 					System.out.println("Adjusting speed!");
 					if(speed<0){
@@ -247,24 +249,18 @@ public class Robot extends TimedRobot {
 			}
 			else{
 				System.out.println("Target is perfect or it's not connected");
-				//running = false;
-				//break;
-			}
-
-			if(target >= -bounds && target <= bounds){
 				_driver.chassis.driveSpd(0,0);
-				//limelight.setLED(false);
-				//running = false;
-				System.out.println("Within threshold; exiting loop");
 			}
-		} /*else {
+		} else {
 			_driver.chassis.limelight.setLED(false);
-		}*/
+		}
 		
 
 		// Wheel Stuff
-		_driver.chassis.drive(OI.normalize(_driver.oi.getRJoystickXAxis(), -spdMltWheel, 0, spdMltWheel),
+		if(!_driver.oi.getAButton()) {
+			_driver.chassis.drive(OI.normalize(_driver.oi.getRJoystickXAxis(), -spdMltWheel, 0, spdMltWheel),
 				OI.normalize(_driver.oi.getLJoystickYAxis(), -spdMltWheel, 0, spdMltWheel));
+		}
 
 				//System.out.println("Speed: " + _driver.chassis._backLeft.getMotorOutputPercent());
 		//Switch

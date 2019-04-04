@@ -13,6 +13,7 @@ public class LimeCam {
     NetworkTableEntry tx = table.getEntry("tx");
     NetworkTableEntry ty = table.getEntry("ty");
     NetworkTableEntry ta = table.getEntry("ta");
+    NetworkTableEntry tv = table.getEntry("tv");
     NetworkTableEntry ledMode = table.getEntry("ledMode");
 
     //read values periodically
@@ -20,6 +21,7 @@ public class LimeCam {
     double y = ty.getDouble(0.0);
     double area = ta.getDouble(0.0);
     double led = ledMode.getDouble(-1);
+    double numTarg = tv.getDouble(0.0);
     
     
     
@@ -100,6 +102,15 @@ public class LimeCam {
         return x;
     }
 
+    public boolean targetExists() {
+        numTarg = tv.getDouble(0.0);
+		if(numTarg > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
     public double getTargetAngle() {
         double targetAngle = 0;
         double distFromCenter = 0;
