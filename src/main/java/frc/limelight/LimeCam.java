@@ -41,7 +41,7 @@ public class LimeCam {
     }
 
     public double estimateTargetAngle(){
-        double offset = -6.26 - 4.55 * Math.log(ta.getDouble(0.0));
+        double offset = 0.0907*Math.pow(ta.getDouble(0.0), 2)-2.27*ta.getDouble(0.0)-5.29;
         return tx.getDouble(0) - offset;
     }
 
@@ -100,6 +100,11 @@ public class LimeCam {
     public double getTX(){
         x = tx.getDouble(0.0);
         return x;
+    }
+
+    public double getTA(){
+        double a = ta.getDouble(0.0);
+        return a;
     }
 
     public boolean targetExists() {

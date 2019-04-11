@@ -59,7 +59,7 @@ public class Elevator {
 	
 	//Builds the elevator talon
 	public Elevator(){
-		talon1 = new CCTalon(RobotMap.ELEVATOR, false);
+		talon1 = new CCTalon(RobotMap.ELEVATOR, true);
 		
 		encoder  = new Encoder(RobotMap.ENCODER_ELEVATOR_A, RobotMap.ENCODER_ELEVATOR_B);
 		ElevatorLevel.setString("VOID");

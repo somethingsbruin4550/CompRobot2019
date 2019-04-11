@@ -19,7 +19,7 @@ public class Climber {
 	//Creates the talon
 	public Climber() {
 		talon1 = new CCTalon(RobotMap.CLIMBER_A, false);
-		talon2 = new CCTalon(RobotMap.CLIMBER_B, false);
+		talon2 = new CCTalon(RobotMap.CLIMBER_B, true);
 		//potent = new AnalogPotentiometer(RobotMap.POTENT_CLIMBER_FRONT);
 		frontLimit = new DigitalInput(RobotMap.BACK_CLIMBER_LIMITSWITCH);
 		//encoder1 = new Encoder(RobotMap.ENCODER_ELEVATOR_A, RobotMap.ENCODER_ELEVATOR_B);	

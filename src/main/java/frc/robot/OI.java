@@ -116,6 +116,13 @@ public class OI {
 		return _controller.getRawAxis( L_JOYSTICK_VERTICAL ) * -1;
 	}
 
+	public double getLJoystickYAxisC2()
+	{
+		// Returns the left _controller's vertical value, which is inverted.
+		return _controller2.getRawAxis( L_JOYSTICK_VERTICAL ) * -1;
+	}
+
+
 	public double getRJoystickXAxis()
 	{
 		// Returns the right _controller's horizontal value.
