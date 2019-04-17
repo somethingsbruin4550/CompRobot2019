@@ -7,6 +7,8 @@ package frc.pixycam;
 	This class is used as the basis for all of the pixy cam logic
 	see the PixyI2C class for actual transmission of packets
 
+	THIS CODE DOESN'T WORK DO NOT USE US AS AN EXAMPLE FOR PIXY CAM!!!
+
 	Pixy Docs : https://docs.pixycam.com/wiki/doku.php?id=wiki:v2:protocol_reference
 
  */

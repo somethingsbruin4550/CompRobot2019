@@ -19,47 +19,53 @@ public class RobotMap {
 	// public static int rangefinderPort = 1;
 	// public static int rangefinderModule = 1;
 
-	//	COMPETITION ROBOT CONSTANTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	//	ROBOT PORTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	//Wheel Talons
-	public static final int BACK_LEFT = 0;
-	public static final int BACK_RIGHT = 7;
-	public static final int FRONT_RIGHT = 8;
-	public static final int FRONT_LEFT = 2;
+	// //Wheel Talons - Practice
+	// public static final int BACK_LEFT = 0;
+	// public static final int BACK_RIGHT = 7;
+	// public static final int FRONT_RIGHT = 8;
+	// public static final int FRONT_LEFT = 2;
 
-	//Talon Ports for Intake
-	public static final int INTAKE_LEFT = 6;
-	public static final int INTAKE_RIGHT = 4;
+	// //Talon Ports for Intake - Practice
+	// public static final int INTAKE_LEFT = 6;
+	// public static final int INTAKE_RIGHT = 4;
 			
-	//Talon ports for Elevator
-	public static final int ELEVATOR = 1;
+	// //Talon ports for Elevator - Practice
+	// public static final int ELEVATOR = 1;
 		
-	//Talon ports for Climber 
-	public static final int CLIMBER_A = 5;
-	public static final int CLIMBER_B = 3;
+	// //Talon ports for Climber - Practice 
+	// public static final int CLIMBER_A = 5;
+	// public static final int CLIMBER_B = 3;
 
-	// // // Wheel Talons
-	// public static final int BACK_LEFT = 6;
-	// public static final int BACK_RIGHT = 5;
-	// public static final int FRONT_RIGHT = 4;
-	// public static final int FRONT_LEFT = 3;
+	// // Wheel Talons - Comp
+	public static final int BACK_LEFT = 6;
+	public static final int BACK_RIGHT = 5;
+	public static final int FRONT_RIGHT = 4;
+	public static final int FRONT_LEFT = 3;
 
-	// //Talon Ports for Intake
-	// public static final int INTAKE_LEFT = 8;
-	// public static final int INTAKE_RIGHT = 7;
+	//Talon Ports for Intake - Comp
+	public static final int INTAKE_LEFT = 8;
+	public static final int INTAKE_RIGHT = 7;
 			
-	// //Talon ports for Elevator
-	// public static final int ELEVATOR = 0;
+	//Talon ports for Elevator - Comp
+	public static final int ELEVATOR = 0;
 		
-	// //Talon ports for Climber 
-	// public static final int CLIMBER_A = 1;
-	// public static final int CLIMBER_B = 2;
+	//Talon ports for Climber - Comp
+	public static final int CLIMBER_A = 1;
+	public static final int CLIMBER_B = 2;
 
-	// Wheel Talon Polarity
+	// // Wheel Talon Polarity - Practice
+	// public static final boolean FRONT_LEFT_REVERSE = false;
+	// public static final boolean BACK_LEFT_REVERSE = false;		
+	// public static final boolean FRONT_RIGHT_REVERSE = true;
+	// public static final boolean BACK_RIGHT_REVERSE = true;
+	
+	// Wheel Talon Polarity - Comp
 	public static final boolean FRONT_LEFT_REVERSE = false;
 	public static final boolean BACK_LEFT_REVERSE = false;		
 	public static final boolean FRONT_RIGHT_REVERSE = true;
-	public static final boolean BACK_RIGHT_REVERSE = true; 
+	public static final boolean BACK_RIGHT_REVERSE = true;
 
 	// Controller Zeroes
 	public static final double LEFT_Y_ZERO = -0.0078125;

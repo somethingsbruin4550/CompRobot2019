@@ -20,7 +20,7 @@ public class CCTalon extends WPI_TalonSRX
 	//If the _reverse == true, then the power the motor in reverse
 	//ControlMode.PercentOutput tells the method to set voltage of motorcontroller to the speed
 	// [-100%, 100%] power only 
-	public void set(double speed) 
+	public void set(double speed)
 	{
 		if(_reverse)  
 			super.set(-speed);

@@ -6,6 +6,8 @@ import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+//8===>~~~~~~~~~
+//Visual representation of the usefulness of Adam's dumb class
 
 
 public class Driver {

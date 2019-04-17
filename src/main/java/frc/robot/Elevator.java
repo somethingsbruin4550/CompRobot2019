@@ -44,10 +44,10 @@ public class Elevator {
 		 -5.5,
 		 0.0 + 3 , //Hatch 1
 		 16.0, //Cargo 1
-		 26.50, //Hatch 2
-		 44.0, //Cargo 2
-		 55, //Hatch 3
-		 71.0, //Cargo 3
+		 26.50 + 4, //Hatch 2
+		 44.0 + 4, //Cargo 2
+		 55 + 4, //Hatch 3
+		 71.0 + 4, //Cargo 3
 	};
 	int target = 0; 
 	double position; // current position in inches/feed, degrees, etc.)
@@ -59,7 +59,7 @@ public class Elevator {
 	
 	//Builds the elevator talon
 	public Elevator(){
-		talon1 = new CCTalon(RobotMap.ELEVATOR, true);
+		talon1 = new CCTalon(RobotMap.ELEVATOR, false);
 		
 		encoder  = new Encoder(RobotMap.ENCODER_ELEVATOR_A, RobotMap.ENCODER_ELEVATOR_B);
 		ElevatorLevel.setString("VOID");
@@ -79,7 +79,7 @@ public class Elevator {
 	 * @return Encoder Value in tics
 	 */
 	public double getDistance() {
-		return encoder.getDistance();
+		return -encoder.getDistance();
 	}
 
 	/**
@@ -241,5 +241,6 @@ public class Elevator {
 		} else if(target >= targets.length){
 			target = targets.length-1;
 		}
+		//System.out.println(target);
 	}
 }

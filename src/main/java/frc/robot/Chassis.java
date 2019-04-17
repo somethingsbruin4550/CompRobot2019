@@ -345,11 +345,11 @@ public class Chassis {
 			target = limelight.estimateTargetAngle();//getFinalLimelightAngle();
 			speed = OI.normalize(target/32, -highestSpeed, 0, highestSpeed);
 			//System.out.println("Target S: " + target);
-			System.out.println("Speed: " + speed);
+		//	System.out.println("Speed: " + speed);
 
 			if(target!=0){
 				if(Math.abs(speed)<lowestSpeed){
-					System.out.println("Adjusting speed!");
+				//	System.out.println("Adjusting speed!");
 					if(speed<0){
 						driveSpd(-lowestSpeed,lowestSpeed);
 					}else if(speed>0){
@@ -360,7 +360,7 @@ public class Chassis {
 				}
 			}
 			else{
-				System.out.println("Target is perfect or it's not connected");
+				//System.out.println("Target is perfect or it's not connected");
 				running = false;
 			}
 
@@ -368,7 +368,7 @@ public class Chassis {
 				driveSpd(0,0);
 				//limelight.setLED(false);
 				running = false;
-				System.out.println("Withing threshold; exiting loop");
+				//System.out.println("Withing threshold; exiting loop");
 			}
 
 		}
@@ -396,7 +396,7 @@ public class Chassis {
 	}
 
 	public void setLimelightLED(boolean lightOn){
-		System.out.println("turning on");
+		//System.out.println("turning on");
 		limelight.setLED(lightOn);
 	}
 

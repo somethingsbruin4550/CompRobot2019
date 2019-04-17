@@ -15,29 +15,32 @@ import java.util.ArrayList;
  * Add your docs here.
  */
 public class ReleasableButton {
-    ArrayList<String> buttonNames = new ArrayList<String>();
-    ArrayList<Boolean> buttonStates = new ArrayList<Boolean>();
+    boolean buttonState = false;
 
-    boolean updateButton(String name, boolean isPressed) {
-        int buttonIndex = getButtonId(name);
-        return updateButton(buttonIndex, isPressed);
-    }
-
-    boolean updateButton(int buttonIndex, boolean isPressed) {
-        if(!buttonStates.get(buttonIndex) && isPressed) {
-            buttonStates.set(buttonIndex, true);
+    boolean updateButton(boolean isPressed) {
+        if(!buttonState && isPressed) {
+            buttonState = true;
             return true;
-        } else if(buttonStates.get(buttonIndex) && !isPressed)
-            buttonStates.set(buttonIndex, false);
+        } else if(buttonState && !isPressed)
+            buttonState = false;
         return false;
     }
 
-    private int getButtonId(String name) {
-        int i = buttonNames.indexOf(name);
-        if(i == -1) {
-            buttonNames.add(name);
-            i = buttonNames.indexOf(name);
-        }
-        return i;
-    }
+    // boolean updateButton(int buttonIndex, boolean isPressed) {
+    //     if(!buttonStates.get(buttonIndex) && isPressed) {
+    //         buttonStates.set(buttonIndex, true);
+    //         return true;
+    //     } else if(buttonStates.get(buttonIndex) && !isPressed)
+    //         buttonStates.set(buttonIndex, false);
+    //     return false;
+    // }
+
+    //  int getButtonId(String name) {
+    //     int i = buttonNames.indexOf(name);
+    //     if(i == -1) {
+    //         buttonNames.add(name);
+    //         i = buttonNames.indexOf(name);
+    //     }
+    //     return i;
+    // }
 }

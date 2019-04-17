@@ -65,6 +65,8 @@ public class Robot extends TimedRobot {
 	double[] TAs = new double[1000];
 	boolean newTA = true;
 	int lastUsedIndex = -1;
+	ReleasableButton dPadButtonUp = new ReleasableButton();
+	ReleasableButton dPadButtonDown = new ReleasableButton();
 
 
 	private NetworkTable table = NetworkTableInstance.getDefault().getTable("ElementDashboard");
@@ -85,7 +87,7 @@ public class Robot extends TimedRobot {
 		_chooser.addDefault("Default Auto", DEFAULT_AUTO);
 		_chooser.addOption("Disable Auto", DISABLE_AUTO);
 		SmartDashboard.putData("Auto choices", _chooser);
-
+		
 		// SmartDashboard.putBoolean("Disable Elevator PID", );
 
 		_driver = new Driver();
@@ -192,7 +194,7 @@ public class Robot extends TimedRobot {
 			spdMltWheel = 0.5;
 			isPadPressed = false;
 			eleHeight = 0;
-			/// led.setDutyCycle(1425); //Sets Blue Breathe
+			// led.setDutyCycle(1425); //Sets Blue Breathe
 			// _driver.elevator.returnToZero(3.0);
 			_driver.elevator.setDriverTarget(0);
 			_driver.elevator.initPID();
@@ -202,13 +204,17 @@ public class Robot extends TimedRobot {
 			RobotActive.setBoolean(true);
 			SmartDashboard.putBoolean("Elevator Pid Enabled", true);
 		}
-		System.out.println("Starting: ****************************************");
+		//System.out.println("Starting: ****************************************m ");
 		TAs = new double[1000];
 		newTA = true;
 		lastUsedIndex = -1;
 		_driver.chassis.setLimelightLED(true);
 	}
 
+	// public void disabledPeriodic(){
+	// 	_driver.chassis.limelight.setLED(false);
+	// }
+	
 	/**
 	 * This function is called periodically during operator control
 	 */
@@ -259,9 +265,9 @@ public class Robot extends TimedRobot {
 			//System.out.println("Target: " + target);
 
 			if(_driver.chassis.limelight.targetExists() && !(target >= -bounds && target <= bounds)){
-				System.out.println("Within bounds!");
+			//	System.out.println("Within bounds!");
 				if(Math.abs(speed)<lowestSpeed){
-					System.out.println("Adjusting speed!");
+			//		System.out.println("Adjusting speed!");
 					if(speed<0){
 						_driver.chassis.driveSpd(-lowestSpeed/2 + (OI.normalize(_driver.oi.getRJoystickXAxis(), -1, 0, 1)/2)
 						,lowestSpeed/2 + (OI.normalize(_driver.oi.getLJoystickYAxis(), -1, 0, 1))/2);
@@ -321,34 +327,34 @@ public class Robot extends TimedRobot {
 		
 		// Climber Stuff: Checks the bumpers and stuff
 		
-		// if (_driver.oi.getLB()){
-		// 	_driver.climber.setClimberFront(-spdMlt * 0.75);
-		// }else if (_driver.oi.getRB()){
-		// 		_driver.climber.setClimberFront(spdMlt * 0.75);
-		// }else{
-		// 	_driver.climber.setClimberFront(0);
-		// }
-
-		_driver.climber.setClimberFront(OI.normalize(_driver.oi.getLJoystickYAxisC2(), -1.0, 0.0, 1.0));
-
-		// if (_driver.oi.getRBC2())
-		// 	_driver.climber.setClimberBack(spdMlt * 0.75);
-		// else if (_driver.oi.getLBC2())
-		// 	_driver.climber.setClimberBack(-spdMlt * 0.75);
-		// else
-		// 	_driver.climber.setClimberBack(0);
-
-		// Elevator stuff
-		if (_driver.oi.getRTC2() > 0.1) {
-			_driver.elevator.setElevator(OI.normalize(_driver.oi.getRTC2(), -1.0, 0.0, 1.0));
-			//_driver.elevator.addInches(true);
-		} else if (_driver.oi.getLTC2() > 0.1) {
-			_driver.elevator.setElevator(OI.normalize(_driver.oi.getLTC2(), -1.00, 0.0, 0.85)*-1.0);
-			//_driver.elevator.addInches(false);
-		} else{
-			//_driver.elevator.setElevator(0.08);
-			_driver.elevator.runPID(0.01,false);
+		if (_driver.oi.getLB()){
+			_driver.climber.setClimberFront(-spdMlt * 0.75);
+		}else if (_driver.oi.getRB()){
+				_driver.climber.setClimberFront(spdMlt * 0.75);
+		}else{
+			_driver.climber.setClimberFront(0);
 		}
+
+		if (_driver.oi.getRBC2())
+			_driver.climber.setClimberBack(spdMlt * 0.75);
+		else if (_driver.oi.getLBC2())
+			_driver.climber.setClimberBack(-spdMlt * 0.75);
+		else
+			_driver.climber.setClimberBack(0);
+
+		// // Elevator stuff
+		//  if (_driver.oi.getRTC2() > 0.1) {
+		//  	_driver.elevator.setElevator(OI.normalize(_driver.oi.getRTC2(), -1.0, 0.0, 1.0));
+		// // // 	//_driver.elevator.addInches(true);
+		//  } else if (_driver.oi.getLTC2() > 0.1) {
+		//  	_driver.elevator.setElevator(OI.normalize(_driver.oi.getLTC2(), -1.00, 0.0, 0.85)*-1.0);
+		// // // 	//_driver.elevator.addInches(false);
+		//  } else{
+		// 	 _driver.elevator.setElevator(0.08);
+		//  }
+		 	_driver.elevator.runPID(0.02 ,false);
+		// 	//System.out.println(_driver.elevator.getDistance());
+		//  //}
 
 		// if(_driver.oi.getAButton()){
 		// //	System.out.println("Holding Lime Turn");
@@ -371,6 +377,14 @@ public class Robot extends TimedRobot {
 		// 	isPadPressed = false;
 		// }
 
+		if(dPadButtonUp.updateButton(_driver.oi.getUpPadC2())){
+			_driver.elevator.intTarget(true);
+			//System.out.println("success");
+		}
+
+		if(dPadButtonDown.updateButton(_driver.oi.getDownPadC2())){
+			_driver.elevator.intTarget(false);
+		}
 
 
 		// Intake stuff(Ball)
@@ -378,15 +392,15 @@ public class Robot extends TimedRobot {
 		// if (isBall) {
 			if (_driver.oi.getAButtonC2()){
 				_driver.intake.setIntake(spdMlt);
-				_driver.climber.setClimberBack(spdMlt * 0.75);
+			//	_driver.climber.setClimberBack(spdMlt * 0.75);
 			}else if (_driver.oi.getYButtonC2()){
 				_driver.intake.setOuttake(spdMlt);
-				_driver.climber.setClimberBack(spdMlt * -0.75);
+			//	_driver.climber.setClimberBack(spdMlt * -0.75);
 			}
 			else
 			{
 				_driver.intake.setIntake(0.0);
-				_driver.climber.setClimberBack(0.0);
+				//_driver.climber.setClimberBack(0.0);
 			}
 
 		// }
@@ -410,7 +424,7 @@ public class Robot extends TimedRobot {
 
 		// if (_driver.oi.getAButton()) {
 		// 	limeCamPid = true;
-		// }
+		// or
 
 		
 
