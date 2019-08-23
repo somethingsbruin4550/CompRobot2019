@@ -342,11 +342,11 @@ public class Robot extends TimedRobot {
 		// 	_driver.climber.setClimberBack(0);
 
 		// // Elevator stuff
-		 if (_driver.oi.getRTC2() > 0.1) {
-		 	_driver.elevator.setElevator(OI.normalize(_driver.oi.getRTC2(), -1.0, 0.0, 1.0));
+		 if (_driver.oi.getRT() > 0.1) {
+		 	_driver.elevator.setElevator(OI.normalize(_driver.oi.getRT(), -1.0, 0.0, 1.0));
 		// // 	//_driver.elevator.addInches(true);
-		 } else if (_driver.oi.getLTC2() > 0.1) {
-		 	_driver.elevator.setElevator(OI.normalize(_driver.oi.getLTC2(), -1.00, 0.0, 0.85)*-1.0);
+		 } else if (_driver.oi.getLT() > 0.1) {
+		 	_driver.elevator.setElevator(OI.normalize(_driver.oi.getLT(), -1.00, 0.0, 0.85)*-1.0);
 		// // 	//_driver.elevator.addInches(false);
 		 } else{
 			 _driver.elevator.setElevator(0.08);
@@ -389,10 +389,10 @@ public class Robot extends TimedRobot {
 		// Intake stuff(Ball)
 
 		// if (isBall) {
-			if (_driver.oi.getAButtonC2()){
+			if (_driver.oi.getAButton()){
 				_driver.intake.setIntake(spdMlt);
 			//	_driver.climber.setClimberBack(spdMlt * 0.75);
-			}else if (_driver.oi.getYButtonC2()){
+			}else if (_driver.oi.getYButton()){
 				_driver.intake.setOuttake(spdMlt);
 			//	_driver.climber.setClimberBack(spdMlt * -0.75);
 			}
