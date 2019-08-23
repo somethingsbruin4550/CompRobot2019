@@ -248,52 +248,51 @@ public class Robot extends TimedRobot {
 		// }
 		// newTA = true;
 		
-		if (_driver.oi.getLT() > .25)
-			spdMltWheel = 0.5;
-		else if (_driver.oi.getRT() > .25)
-			spdMltWheel = 0.75; 
+		// if (_driver.oi.getLT() > .25)
+		// 	spdMltWheel = 0.5;
+		// else if (_driver.oi.getRT() > .25)
+		// 	spdMltWheel = 0.75;
+		spdMltWheel = 0.25;
 		
-		// Limelight Align:
-		if(_driver.oi.getAButton()) {
-			//_driver.chassis.simpleLimeTurn();
-			_driver.chassis.setLimelightLED(true);
-			//Timer.delay(0.5);
-			target = _driver.chassis.limelight.estimateTargetAngle();//getFinalLimelightAngle();
-			speed = OI.normalize(target/20/*32*/, -highestSpeed, 0, highestSpeed);
-			//System.out.println("Target S: " + target);
-			//System.out.println("Speed: " + speed);
-			//System.out.println("Target: " + target);
+		// // Limelight Align:
+		// if(_driver.oi.getAButton()) {
+		// 	//_driver.chassis.simpleLimeTurn();
+		// 	_driver.chassis.setLimelightLED(true);
+		// 	//Timer.delay(0.5);
+		// 	target = _driver.chassis.limelight.estimateTargetAngle();//getFinalLimelightAngle();
+		// 	speed = OI.normalize(target/20/*32*/, -highestSpeed, 0, highestSpeed);
+		// 	//System.out.println("Target S: " + target);
+		// 	//System.out.println("Speed: " + speed);
+		// 	//System.out.println("Target: " + target);
 
-			if(_driver.chassis.limelight.targetExists() && !(target >= -bounds && target <= bounds)){
-			//	System.out.println("Within bounds!");
-				if(Math.abs(speed)<lowestSpeed){
-			//		System.out.println("Adjusting speed!");
-					if(speed<0){
-						_driver.chassis.driveSpd(-lowestSpeed/2 + (OI.normalize(_driver.oi.getRJoystickXAxis(), -1, 0, 1)/2)
-						,lowestSpeed/2 + (OI.normalize(_driver.oi.getLJoystickYAxis(), -1, 0, 1))/2);
-					}else if(speed>0){
-						_driver.chassis.driveSpd(lowestSpeed/2 + (OI.normalize(_driver.oi.getRJoystickXAxis(), -1, 0, 1)/2)
-						,-lowestSpeed/2 +(OI.normalize(_driver.oi.getLJoystickYAxis(), -1, 0, 1))/2);
-					}
-				}else{
-					_driver.chassis.driveSpd(speed/2 + (OI.normalize(_driver.oi.getRJoystickXAxis(), -1, 0, 1)/2),
-					-speed/2 + (OI.normalize(_driver.oi.getLJoystickYAxis(), -1, 0, 1))/2);
-				}
-			}
-			else{
-				//System.out.println("Target is perfect or a there was an error accessing the target.");
-				_driver.chassis.driveSpd(OI.normalize(_driver.oi.getRJoystickXAxis(), -1, 0, 1),
-				OI.normalize(_driver.oi.getLJoystickYAxis(), -1, 0, 1));
-			}
-		} else {
-			//_driver.chassis.setLimelightLED(false);
-		}
+		// 	if(_driver.chassis.limelight.targetExists() && !(target >= -bounds && target <= bounds)){
+		// 	//	System.out.println("Within bounds!");
+		// 		if(Math.abs(speed)<lowestSpeed){
+		// 	//		System.out.println("Adjusting speed!");
+		// 			if(speed<0){
+		// 				_driver.chassis.driveSpd(-lowestSpeed/2 + (OI.normalize(_driver.oi.getRJoystickXAxis(), -1, 0, 1)/2)
+		// 				,lowestSpeed/2 + (OI.normalize(_driver.oi.getLJoystickYAxis(), -1, 0, 1))/2);
+		// 			}else if(speed>0){
+		// 				_driver.chassis.driveSpd(lowestSpeed/2 + (OI.normalize(_driver.oi.getRJoystickXAxis(), -1, 0, 1)/2)
+		// 				,-lowestSpeed/2 +(OI.normalize(_driver.oi.getLJoystickYAxis(), -1, 0, 1))/2);
+		// 			}
+		// 		}else{
+		// 			_driver.chassis.driveSpd(speed/2 + (OI.normalize(_driver.oi.getRJoystickXAxis(), -1, 0, 1)/2),
+		// 			-speed/2 + (OI.normalize(_driver.oi.getLJoystickYAxis(), -1, 0, 1))/2);
+		// 		}
+		// 	}
+		// 	else{
+		// 		//System.out.println("Target is perfect or a there was an error accessing the target.");
+		// 		_driver.chassis.driveSpd(OI.normalize(_driver.oi.getRJoystickXAxis(), -1, 0, 1),
+		// 		OI.normalize(_driver.oi.getLJoystickYAxis(), -1, 0, 1));
+		// 	}
+		// } else {
+		// 	//_driver.chassis.setLimelightLED(false);
+		// }
 
 		// Wheel Stuff
-		if(!_driver.oi.getAButton()) {
-			_driver.chassis.drive(OI.normalize(_driver.oi.getRJoystickXAxis(), -spdMltWheel, 0, spdMltWheel),
+		_driver.chassis.drive(OI.normalize(_driver.oi.getRJoystickXAxis(), -spdMltWheel, 0, spdMltWheel),
 				OI.normalize(_driver.oi.getLJoystickYAxis(), -spdMltWheel, 0, spdMltWheel));
-		}
 
 				//System.out.println("Speed: " + _driver.chassis._backLeft.getMotorOutputPercent());
 		//Switch
@@ -327,32 +326,32 @@ public class Robot extends TimedRobot {
 		
 		// Climber Stuff: Checks the bumpers and stuff
 		
-		if (_driver.oi.getLB()){
-			_driver.climber.setClimberFront(-spdMlt * 0.75);
-		}else if (_driver.oi.getRB()){
-				_driver.climber.setClimberFront(spdMlt * 0.75);
-		}else{
-			_driver.climber.setClimberFront(0);
-		}
+		// if (_driver.oi.getLB()){
+		// 	_driver.climber.setClimberFront(-spdMlt * 0.75);
+		// }else if (_driver.oi.getRB()){
+		// 		_driver.climber.setClimberFront(spdMlt * 0.75);
+		// }else{
+		// 	_driver.climber.setClimberFront(0);
+		// }
 
-		if (_driver.oi.getRBC2())
-			_driver.climber.setClimberBack(spdMlt * 0.75);
-		else if (_driver.oi.getLBC2())
-			_driver.climber.setClimberBack(-spdMlt * 0.75);
-		else
-			_driver.climber.setClimberBack(0);
+		// if (_driver.oi.getRBC2())
+		// 	_driver.climber.setClimberBack(spdMlt * 0.75);
+		// else if (_driver.oi.getLBC2())
+		// 	_driver.climber.setClimberBack(-spdMlt * 0.75);
+		// else
+		// 	_driver.climber.setClimberBack(0);
 
 		// // Elevator stuff
-		//  if (_driver.oi.getRTC2() > 0.1) {
-		//  	_driver.elevator.setElevator(OI.normalize(_driver.oi.getRTC2(), -1.0, 0.0, 1.0));
-		// // // 	//_driver.elevator.addInches(true);
-		//  } else if (_driver.oi.getLTC2() > 0.1) {
-		//  	_driver.elevator.setElevator(OI.normalize(_driver.oi.getLTC2(), -1.00, 0.0, 0.85)*-1.0);
-		// // // 	//_driver.elevator.addInches(false);
-		//  } else{
-		// 	 _driver.elevator.setElevator(0.08);
-		//  }
-		 	_driver.elevator.runPID(0.02 ,false);
+		 if (_driver.oi.getRTC2() > 0.1) {
+		 	_driver.elevator.setElevator(OI.normalize(_driver.oi.getRTC2(), -1.0, 0.0, 1.0));
+		// // 	//_driver.elevator.addInches(true);
+		 } else if (_driver.oi.getLTC2() > 0.1) {
+		 	_driver.elevator.setElevator(OI.normalize(_driver.oi.getLTC2(), -1.00, 0.0, 0.85)*-1.0);
+		// // 	//_driver.elevator.addInches(false);
+		 } else{
+			 _driver.elevator.setElevator(0.08);
+		 }
+		 	// _driver.elevator.runPID(0.02 ,false);
 		// 	//System.out.println(_driver.elevator.getDistance());
 		//  //}
 

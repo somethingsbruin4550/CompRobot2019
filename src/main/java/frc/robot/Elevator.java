@@ -71,6 +71,9 @@ public class Elevator {
 	 */
 	public void setElevator(double speed){
 		talon1.set(speed);
+		if(getDistance() * ticsPerInch > 30 && getElevator() > 0){
+			talon1.set(0);
+		}
 		//System.out.println(speed);
 	}
 
