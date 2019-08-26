@@ -132,48 +132,48 @@ public class Robot extends TimedRobot {
 		if (autoRun) {
 			switch (autoSelected) {
 			case DEFAULT_AUTO:
-				_driver.reset();
-				_driver.elevator.reset();
-				spdMltWheel = 0.5;
-				isPadPressed = false;
-				eleHeight = 0;
-				/// led.setDutyCycle(1425); //Sets Blue Breathe
-				// _driver.elevator.returnToZero(3.0);
-				_driver.elevator.setDriverTarget(0);
-				_driver.elevator.initPID();
-				_driver.chassis.initTurnPID(-5, .02);
-				RobotStatus.setString("Running Teleop");
-				// _driver.chassis.initTurnPID(180, 0.001);
-				RobotActive.setBoolean(true);
-				_driver.elevator.setElevator(.75);
-				Timer.delay(.6);
-				_driver.elevator.setElevator(0);
-				Timer.delay(.25);
-				_driver.elevator.setElevator(-.25);
-				Timer.delay(.4);
-				_driver.chassis.driveSpd(-.25, -.25);
-				Timer.delay(1);
-				_driver.chassis.driveSpd(0,0);
-				SmartDashboard.putBoolean("Elevator Pid Enabled", true);
-				teleOPInit = true; 
+				// _driver.reset();
+				// _driver.elevator.reset();
+				// spdMltWheel = 0.5;
+				// isPadPressed = false;
+				// eleHeight = 0;
+				// /// led.setDutyCycle(1425); //Sets Blue Breathe
+				// // _driver.elevator.returnToZero(3.0);
+				// _driver.elevator.setDriverTarget(0);
+				// _driver.elevator.initPID();
+				// _driver.chassis.initTurnPID(-5, .02);
+				// RobotStatus.setString("Running Teleop");
+				// // _driver.chassis.initTurnPID(180, 0.001);
+				// RobotActive.setBoolean(true);
+				// _driver.elevator.setElevator(.75);
+				// Timer.delay(.6);
+				// _driver.elevator.setElevator(0);
+				// Timer.delay(.25);
+				// _driver.elevator.setElevator(-.25);
+				// Timer.delay(.4);
+				// _driver.chassis.driveSpd(-.25, -.25);
+				// Timer.delay(1);
+				// _driver.chassis.driveSpd(0,0);
+				// SmartDashboard.putBoolean("Elevator Pid Enabled", true);
+				// teleOPInit = true; 
 				//_driver.chassis.simpleLimeTurn();
 				break;
 			case DISABLE_AUTO:
-			_driver.reset();
-			_driver.elevator.reset();
-			spdMltWheel = 0.5;
-			isPadPressed = false;
-			eleHeight = 0;
-			/// led.setDutyCycle(1425); //Sets Blue Breathe
-			// _driver.elevator.returnToZero(3.0);
-			_driver.elevator.setDriverTarget(0);
-			_driver.elevator.initPID();
-			_driver.chassis.initTurnPID(-5, .02);
-			RobotStatus.setString("Running Teleop");
-			// _driver.chassis.initTurnPID(180, 0.001);
-			RobotActive.setBoolean(true);
-			SmartDashboard.putBoolean("Elevator Pid Enabled", true);
-			teleOPInit = true; 
+			// _driver.reset();
+			// _driver.elevator.reset();
+			// spdMltWheel = 0.5;
+			// isPadPressed = false;
+			// eleHeight = 0;
+			// /// led.setDutyCycle(1425); //Sets Blue Breathe
+			// // _driver.elevator.returnToZero(3.0);
+			// _driver.elevator.setDriverTarget(0);
+			// _driver.elevator.initPID();
+			// _driver.chassis.initTurnPID(-5, .02);
+			// RobotStatus.setString("Running Teleop");
+			// // _driver.chassis.initTurnPID(180, 0.001);
+			// RobotActive.setBoolean(true);
+			// SmartDashboard.putBoolean("Elevator Pid Enabled", true);
+			// teleOPInit = true; 
 			break;
 			default:
 				// Put default auto code here
@@ -351,6 +351,8 @@ public class Robot extends TimedRobot {
 		 } else{
 			 _driver.elevator.setElevator(0.08);
 		 }
+
+		 System.out.println(_driver.elevator.getDistance() / _driver.elevator.ticsPerInch);
 		 	// _driver.elevator.runPID(0.02 ,false);
 		// 	//System.out.println(_driver.elevator.getDistance());
 		//  //}
@@ -376,14 +378,14 @@ public class Robot extends TimedRobot {
 		// 	isPadPressed = false;
 		// }
 
-		if(dPadButtonUp.updateButton(_driver.oi.getUpPadC2())){
-			_driver.elevator.intTarget(true);
-			//System.out.println("success");
-		}
+		// if(dPadButtonUp.updateButton(_driver.oi.getUpPadC2())){
+		// 	_driver.elevator.intTarget(true);
+		// 	//System.out.println("success");
+		// }
 
-		if(dPadButtonDown.updateButton(_driver.oi.getDownPadC2())){
-			_driver.elevator.intTarget(false);
-		}
+		// if(dPadButtonDown.updateButton(_driver.oi.getDownPadC2())){
+		// 	_driver.elevator.intTarget(false);
+		// }
 
 
 		// Intake stuff(Ball)
@@ -413,13 +415,13 @@ public class Robot extends TimedRobot {
 		// 		_driver.intake.setIntake(0.0);
 		// }
 
-	if(_driver.oi.getXButtonC2()){
-		_driver.elevator.mod = -5;
-	}
+	// if(_driver.oi.getXButtonC2()){
+	// 	_driver.elevator.mod = -5;
+	// }
 
-	if(_driver.oi.getX2Released()){
-		_driver.elevator.mod = 0;
-	}
+	// if(_driver.oi.getX2Released()){
+	// 	_driver.elevator.mod = 0;
+	// }
 
 		// if (_driver.oi.getAButton()) {
 		// 	limeCamPid = true;

@@ -55,7 +55,7 @@ public class OI {
 	{
 		//Sets _controller to to the correct input
 		_controller = new Joystick ( 0 );
-		_controller2 = new Joystick ( 1 );
+		// _controller2 = new Joystick ( 1 );
 		left = new DPadButton (_controller, Direction.LEFT);
 		down = new DPadButton (_controller, Direction.DOWN);
 		up = new DPadButton (_controller, Direction.UP);
