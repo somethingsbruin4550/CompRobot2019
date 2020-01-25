@@ -1,5 +1,7 @@
 package frc.robot;
 
+import frc.parent.*;
+
 public class Intake {
 
 	//Creats THREE TALONS BECAUSE MECHANICAL IS THE WORST 
@@ -8,8 +10,8 @@ public class Intake {
 
 	//Builds the 3 talons
 	public Intake(){
-		talon1 = new CCTalon(RobotMap.INTAKE_LEFT, false);
-		talon2 = new CCTalon(RobotMap.INTAKE_RIGHT, true);
+		talon1 = new CCTalon(RobotMap.INTAKE_L, false);
+		talon2 = new CCTalon(RobotMap.INTAKE_R, true);
 	}
 
 	//3 methods to set the speeds for the talons 

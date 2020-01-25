@@ -8,9 +8,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
 
 /**
  * Do NOT add any static variables to this class, or any initialization at all.
@@ -18,12 +15,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
  * change the parameter class to the startRobot call.
  */
 public final class Main {
-
-  private NetworkTable table = NetworkTableInstance.getDefault().getTable("ElementDashboard");
-  NetworkTableEntry RobotActive = table.getEntry("RobotActive");
-  
   private Main() {
-		RobotActive.setBoolean(false);
   }
 
   /**

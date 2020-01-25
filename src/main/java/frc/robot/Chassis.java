@@ -1,403 +1,183 @@
 package frc.robot;
 
-import frc.robot.*;
-import frc.limelight.*;
-
-import com.kauailabs.navx.frc.AHRS;
-
-import edu.wpi.first.wpilibj.DriverStation;
+import frc.parent.*;
+import frc.sensors.LemonLight;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.Timer;
+import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Timer;
+// import edu.wpi.first.networktables.NetworkTable;
+// import edu.wpi.first.networktables.NetworkTableEntry;
+// import edu.wpi.first.networktables.NetworkTableInstance;
+// import edu.wpi.first.networktables.NetworkTableType;
+// import edu.wpi.first.networktables.NetworkTableValue;
 
-public class Chassis {
-	// Something's Bruin, Something's Bruin, do ya smell coffee? Cuz Something's
-	// Bruin!
-	// Declares the encoders in the memory
-	public Encoder _leftEncoder;
-	public Encoder _rightEncoder;
+public class Chassis implements RobotMap{
 
-	// Creates the left and right motors and builds the gyro
-	CCTalon _backLeft;
-	CCTalon _backRight;
-	CCTalon _frontLeft;
-	CCTalon _frontRight;
-	LimeCam limelight;
-	AHRS _gyro;
+    //Talon objects for the wheels
+    //These control the main 4 motors on the robot
+    public static CCTalon fLeft = new CCTalon(RobotMap.FORWARD_LEFT, false);
+    public static CCTalon fRight = new CCTalon(RobotMap.FORWARD_RIGHT, true);
+    public static CCTalon bLeft = new CCTalon(RobotMap.BACK_LEFT, false);
+    public static CCTalon bRight = new CCTalon(RobotMap.BACK_RIGHT, true);
 
-	// Creates the chassis within the chassis
-	private static Chassis _instance;
+    //Talon objects for the Sensors 
+    //Ecoders measure rotations of the wheel
+    //AHRS gyro measures the angle of the bot
+    // public static Encoder eLeft = new Encoder(RobotMap.ENCODER_A_LEFT, RobotMap.ENCODER_B_LEFT);
+    // public static Encoder eRight = new Encoder(RobotMap.ENCODER_A_RIGHT, RobotMap.ENCODER_B_RIGHT);
+    // public static AHRS gyro = new AHRS(SPI.Port.kMXP);
 
-	private static final double encoderPerFeet = 118.647;
-	private static final double encoderPerVolt = 787.222;
+    //To be used in TeleOP
+    //Takes in two axises, most likely the controller axises
+    //Optimized for a west coast or standard chassis
+    //DO NOT USE THIS FOR SWERV DRIVE 
+    public static void axisDrive(double yAxis, double xAxis){
+        fLeft.set(OI.normalize((yAxis + xAxis), -1.0, 1.0));
+        fRight.set(OI.normalize((yAxis - xAxis), -1.0, 1.0));
+        bLeft.set(OI.normalize((yAxis + xAxis), -1.0, 1.0));
+        bRight.set(OI.normalize((yAxis - xAxis), -1.0, 1.0));
+    }
 
-	// PID vars for teleop
-	private double feed_forward;
-	private double max;
-	private double previous_error;
-	private double integral;
-	private double derivative;
-	private double Kp;
-	private double Ki;
-	private double Kd;
-	private double goal;
-	private double dt;
-	private double position;
-	private double error;
-	private double error_check;
+    //To be used on Auto/PIDs
+    //Simply sets the motor controllers to a certain percent output
+    public static void driveSpd(double lSpeed, double rSpeed){
+        fLeft.set(OI.normalize(lSpeed, -1.0, 1.0));
+        fRight.set(OI.normalize(rSpeed, -1.0, 1.0));
+        bLeft.set(OI.normalize(lSpeed, -1.0, 1.0));
+        bRight.set(OI.normalize(rSpeed, -1.0, 1.0));
+    }
 
-	// Creates the Chassis
-	private Chassis() {
+    public static void lockOn(boolean follow, double holdDist){
+        double x = LemonLight.getYaw();
+        double error = Math.abs(x);
+        double input = OI.normalize((error*2)/100, 0.4, 0.7);
+        double leftSpd, rightSpd;
+        // System.out.println(input);
 
-		// Creates the talons
-		// motor = new CCTalon(firstPort, polarity)
-		// if polarity is true, the motor goes in reverse
-		_backLeft = new CCTalon(RobotMap.BACK_LEFT, RobotMap.BACK_LEFT_REVERSE);
-		_backRight = new CCTalon(RobotMap.BACK_RIGHT, RobotMap.BACK_RIGHT_REVERSE);
-		_frontLeft = new CCTalon(RobotMap.FRONT_LEFT, RobotMap.FRONT_LEFT_REVERSE);
-		_frontRight = new CCTalon(RobotMap.FRONT_RIGHT, RobotMap.FRONT_RIGHT_REVERSE);
-		limelight = new LimeCam();
+        if(LemonLight.hasTarget()){
+            if(x > 2.0){
+                leftSpd = -input;
+                rightSpd = input;
+            }
+            else if(x < -2.0){
+                leftSpd = input;
+                rightSpd = -input;
+            }
+            else{
+                leftSpd = 0.0;
+                rightSpd = 0.0;
+            }
 
-		// Creates the Encoders
-		// encoder = new Encoder(RobotMap.firstPort, RobotMap.secondPort)
-		//_leftEncoder = new Encoder(RobotMap.ENCODER_A_LEFT, RobotMap.ENCODER_B_LEFT);
-		//_rightEncoder = new Encoder(RobotMap.ENCODER_A_RIGHT, RobotMap.ENCODER_B_RIGHT);
+            if(follow){
+                double maxTurn = 0.35;
+                leftSpd = OI.normalize(leftSpd, -maxTurn, maxTurn);
+                rightSpd = OI.normalize(rightSpd, -maxTurn, maxTurn);
 
-		try {
-			// Tries to build and gyro
-			_gyro = new AHRS(SPI.Port.kMXP);
-		} catch (RuntimeException e) {
-			DriverStation.reportError("Error instantiating navX-MXP:  " + e.getMessage(), true);
-		}
-	}
 
-	// Tank Drive Method(Drives Robot, but better?)
-	public void tankDrive(double xAxis, double yAxis) {
-		_backLeft.set(OI.deadBand((yAxis + xAxis), -1.0, 0, 1.0));
-		_frontLeft.set(OI.deadBand((yAxis + xAxis), -1.0, 0, 1.0));
-		_backRight.set(OI.deadBand((yAxis - xAxis), -1.0, 0, 1.0));
-		_frontRight.set(OI.deadBand((yAxis - xAxis), -1.0, 0, 1.0));
-	}
+                double maxFollow = -0.2;
+                double distTo = LemonLight.distToTarget() - holdDist;
+                System.out.println(distTo);
+                if(distTo > 0.15){
+                    leftSpd += maxFollow;
+                    rightSpd += maxFollow;
+                }
+                else if(distTo < -0.15){
+                    leftSpd -= maxFollow;
+                    rightSpd -= maxFollow;
+                }
+                // leftSpd += OI.normalize((distToTarget() - holdDist) / 3.0, -maxFollow, maxFollow);
+                // rightSpd += OI.normalize((distToTarget() - holdDist) / 3.0, -maxFollow, maxFollow);
+            }
 
-	public void drive(double xAxis, double yAxis) {
-		// System.out.println("speedCheck: " + speedCheck(xAxis));
-		xAxis += speedCheck(xAxis);
-		// System.out.println("speedCheck(Y): " + speedCheck(yAxis));
-		yAxis += speedCheck(yAxis);
-		_frontLeft.set(OI.normalize((yAxis + xAxis), -1.0, 0, 1.0));
-		_frontRight.set(OI.normalize((yAxis - xAxis), -1.0, 0, 1.0));
-		_backLeft.set(OI.normalize((yAxis + xAxis), -1.0, 0, 1.0));
-		_backRight.set(OI.normalize((yAxis - xAxis), -1.0, 0, 1.0));
-		// System.out.println("xAxis: "+xAxis);
-		// System.out.println("yAxis: "+yAxis);
-	}
+        } else {
+            leftSpd = 0.0;
+            rightSpd = 0.0;
+            
+        }
 
-	public double speedCheck(double Spd) {
-		if (Spd > 1.0) {
-			return -((Spd - 1.0) * 0.5);
-		} else if (Spd < -1.0) {
-			return -((Spd + 1.0) * 0.5);
-		}
-		return 0.0;
-	}
+        driveSpd(leftSpd,rightSpd);
 
-	// public void driveDist(double dist, double delay, boolean debug) {
+    }
+    //Sets the gyro and encoders to zero
+    public static void reset(){
+        // eLeft.reset();
+        // eRight.reset();
+        // gyro.reset();
+    }
 
-	// 	double feed_forward = 0.0234375; // forward input to reduce the steady state error
-	// 	double maxD = 0.275; // used to clamp the max speed, to slow down the robot
-	// 	double previous_errorD = 0; // used to calculate the derivative value
-	// 	double integralD = 0; // used to carry the sum of the error
-	// 	double derivativeD = 0; // used to calculate the change between our goal and position
-	// 	double KpD = 0.00419; // proportional constant
-	// 	double KiD = 0.0; // integral constant
-	// 	double KdD = 0;// 0.002; // derivative constant
-	// 	double goal = dist * encoderPerFeet;
-	// 	// this is what we want the robot to do: go forward,
-	// 	// turn, elevate, etc to a new position)
-	// 	double dt = delay;
-	// 	// this is the wait period for the loop e.g. 1/100s)
-	// 	double position = (this.getLeftEncoder() + this.getRightEncoder()) / 2;// current position in inches/feed,
-	// 																			// degrees, etc.)
-	// 	double offsetL = (position - this.getLeftEncoder()) / encoderPerVolt;
-	// 	double offsetR = (position - this.getRightEncoder()) / encoderPerVolt;
-	// 	double error = 0; // our goal is to make the error from the current position zero)
-	// 	double error_check = goal / 100;
+    //Returns the average distance of the encoders(arthimetic mean)
+    // public static double getDist(){
+        // return (eLeft.getDistance() + eRight.getDistance())/2;
+    // }
 
-	// 	while (true) {
-	// 		// Reset the Position
-	// 		position = this.getLeftEncoder();
-	// 		// Calculates the error based on how far the robot is from the dist
-	// 		error = goal - position;
-	// 		// Calculates the Integral based on the error, delay, and the previous integral
-	// 		integralD = integralD + error * dt;
-	// 		// Calculates the derivative based on the error and the delay
-	// 		derivativeD = (error - previous_errorD) / dt;
-	// 		// MATH
-	// 		double output = KpD * error + KiD * integralD + KdD * derivativeD + feed_forward;
-	// 		// Passes on the error to the previous error
-	// 		previous_errorD = error;
+    /*
+        "Whosever holds these PiDs, if he be worthy, shall posses the power of AJ"
+    */
 
-	// 		// NORMALIZE: If the spd is bigger than we want, set it to the max, if its less
-	// 		// than the -max makes it the negitive max
-	// 		if (output > maxD)
-	// 			output = maxD;
-	// 		else if (output < -maxD)
-	// 			output = -maxD;
+    //Drives the robot to a certain distance
+    //Kinda complex -> DO NOT TOUCH
+    // public static void driveDist(double goal, double kp, double max, boolean debug){
+    //     double pos = getDist();
+    //     double error = goal-pos;
+    //     double aError = goal*0.05;
+    //     double input = 0;
 
-	// 		// After the spd has been fixed, set the speed to the output
-	// 		this.driveSpd(output + offsetL, output + offsetR);
+    //     while(true){
+    //         pos = getDist();
+    //         error = goal-pos;
+    //         input = error*kp;
+    //         input = OI.normalize(input, -max, max);
 
-	// 		// If it's close enough, just break and end the loop
-	// 		if (error <= error_check) {
-	// 			System.out.println("break");
-	// 			break;
-	// 		}
+    //         driveSpd(input, input);
 
-	// 		// Delay(Uses dt)
-	// 		Timer.delay(dt);
-	// 		if (debug) {
-	// 			System.out.println("Position: " + position);
-	// 			System.out.println("Error: " + error);
-	// 			System.out.println("Output: " + output);
-	// 			System.out.println("Integral: " + integralD);
+    //         if(debug){
+    //             System.out.println("Input: " + input);
+    //             System.out.println("Error: " + error);
+    //             System.out.println("Position: " + pos);
+    //             Timer.delay(0.05);
+    //         }
 
-	// 		}
-	// 	}
-	// }
+    //         if(error <= aError){
+    //             driveSpd(0.0, 0.0);
+    //             System.out.println("YOINK, ya made it");
+    //             break;
+    //         }
+    //     }
+    // }
 
-	// Turns to a specific angle(For Autonomous)
-	public void turnToAngle(double angl, double delay, boolean debug) {
-		double feed_forward = 0.0234375; // forward input to reduce the steady state error
-		double max = 0.275; // used to clamp the max speed, to slow down the robot
-		double previous_error = 0; // used to calculate the derivative value
-		double integral = 0; // used to carry the sum of the error
-		double derivative = 0; // used to calculate the change between our goal and position
-		double Kp = 0.005; // proportional constant
-		double Ki = 0; // integral constant
-		double Kd = 0;// 0.002; // derivative constant
-		double goal = angl;
-		// this is what we want the robot to do: go forward,
-		// turn, elevate, etc to a new position)
-		double dt = delay;
-		// this is the wait period for the loop e.g. 1/100s)
-		double position = this.getAngle(); // current position in inches/feed, degrees, etc.)
-		double error = 0; // our goal is to make the error from the current position zero)
-		double error_check = goal / 100;
+    //Turns the robot to a certain angle
+    //Kinda complex -> DO NOT TOUCH
+    // public static void turnToAngle(double goal, double kp, double max, boolean debug){
+    //     double angl = gyro.getAngle();
+    //     double error = goal-angl;
+    //     double aError = goal*0.07;
+    //     double input = 0;
 
-		while (true) {
-			if (error >= error_check) {
-				// Reset the Position
-				position = this.getAngle();
-				// Calculates the error based on how far the robot is from the dist
-				error = goal - position;
-				// Calculates the Integral based on the error, delay, and the previous integral
-				integral = integral + error * dt;
-				// Calculates the derivative based on the error and the delay
-				derivative = (error - previous_error) / dt;
-				// MATH
-				double output = Kp * error + Ki * integral + Kd * derivative + feed_forward;
-				// Passes on the error to the previous error
-				previous_error = error;
+    //     while(true){
+    //         angl = getDist();
+    //         error = goal-angl;
+    //         input = error*kp;
+    //         input = OI.normalize(input, -max, max);
 
-				// NORMALIZE: If the spd is bigger than we want, set it to the max, if its less
-				// than the -max makes it the negitive max
-				if (output > max)
-					output = max;
-				else if (output < -max)
-					output = -max;
+    //         driveSpd(-input, input);
 
-				// After the spd has been fixed, set the speed to the output
-				this.driveSpd(output, -output);
+    //         if(debug){
+    //             System.out.println("Input: " + input);
+    //             System.out.println("Error: " + error);
+    //             System.out.println("Angle: " + angl);
+    //             Timer.delay(0.05);
+    //         }
 
-				// If it's close enough, just break and end the loop
-				if (error <= error_check) {
-					// System.out.println("break");
-					// break;
-				}
+    //         if(error <= aError){
+    //             driveSpd(0.0, 0.0);
+    //             System.out.println("YOINK, ya made it");
+    //             break;
+    //         }
+    //     }
+    // }
 
-				// Delay(Uses dt)
-				Timer.delay(dt);
-				if (debug) {
-					System.out.println("Position: " + position);
-					System.out.println("Error: " + error);
-					System.out.println("Output: " + output);
-					System.out.println("Integral: " + integral);
 
-				}
-			}
-		}
-	}
-
-	public void initTurnPID(double angle, double delay) {
-		feed_forward = 0.0234375; // forward input to reduce the steady state error
-		max = 0.75; // used to clamp the max speed, to slow down the robot
-		previous_error = 0; // used to calculate the derivative value
-		integral = 0; // used to carry the sum of the error
-		derivative = 0; // used to calculate the change between our goal and position
-		Kp = 0.05; // proportional constant
-		Ki = 0; // integral constant
-		Kd = 0;// 0.002; // derivative constant
-		goal = angle;
-		// this is what we want the robot to do: go forward,
-		// turn, elevate, etc to a new position)
-		dt = delay;
-		// this is the wait period for the loop e.g. 1/100s)
-		position = this.getTX(); // current position in inches/feed, degrees, etc.)
-		error = 0; // our goal is to make the error from the current position zero)
-		error_check = goal / 100;
-	}
-
-	public void runTurnPID(boolean debug) {
-		// Reset the Position
-		position = this.getTX();
-		
-		// Calculates the error based on how far the robot is from the dist
-		error = goal - position;
-		// Calculates the Integral based on the error, delay, and the previous integral
-		//integral = integral + error * dt;
-		// Calculates the derivative based on the error and the delay
-		//derivative = (error - previous_error) / dt;
-		// MATH
-		double output = OI.normalize((Kp * error + feed_forward), -max, 0, max);
-		// Passes on the error to the previous error
-		previous_error = error;
-
-		// NORMALIZE: If the spd is bigger than we want, set it to the max, if its less
-		// than the -max makes it the negitive max
-		// if (output > max)
-		// 	output = max;
-		// else if (output < -max)
-		// 	output = -max;
-
-		// After the spd has been fixed, set the speed to the output
-		this.driveSpd(-output, output);
-
-		// If it's close enough, just break and end the loop
-		// if (error <= error_check) {
-		// 	System.out.println("break");
-		// 	// break;
-		// }
-
-		// Delay(Uses dt)
-	//	Timer.delay(dt);
-		// if (debug) {
-		// 	System.out.println("Position: " + position);
-		// 	System.out.println("Error: " + error);
-		// 	System.out.println("Output: " + output);
-		// 	System.out.println("Integral: " + integral);
-
-		// }
-	}
-
-	// Drives both motors a certain speed
-	public void driveSpd(double lSpeed, double rSpeed) {
-		_frontRight.set(rSpeed);
-		_frontLeft.set(lSpeed);
-		_backRight.set(rSpeed);
-		_backLeft.set(lSpeed);
-	}
-
-	// Resets the encoder values
-	public void reset() {
-		//_leftEncoder.reset();
-		//_rightEncoder.reset();
-		//_gyro.reset();
-	}
-
-	// Checks and returns angle
-	public double getAngle() {
-		return _gyro.getAngle();
-	}
-
-	// Gets the chassis instnace
-	public static Chassis getInstance() {
-		if (_instance == null) {
-			_instance = new Chassis();
-		}
-		return _instance;
-	}
-
-	// Checks Encoder, and returns it
-	// public double getLeftEncoder() {
-	// 	return _leftEncoder.getDistance();
-	// }
-
-	// public double getRightEncoder() {
-	// 	return _rightEncoder.getDistance();
-	// }
-
-	// turns to the angle of the limelight target using the PID loop
-	public void turnToAngleLimePID() {
-		turnToAngle(limelight.getTX(), 0.001, false);
-	}
-
-	public void simpleLimeTurn(){
-		limelight.setLED(true);
-		Timer.delay(0.5);
-		//double initA = 
-		double target;
-		double speed = 0;
-		double lowestSpeed = 0.2;
-		double highestSpeed = 0.4;
-		boolean running = true;
-		double bounds = 0.08;
-		while(running){
-			target = limelight.estimateTargetAngle();//getFinalLimelightAngle();
-			speed = OI.normalize(target/32, -highestSpeed, 0, highestSpeed);
-			//System.out.println("Target S: " + target);
-		//	System.out.println("Speed: " + speed);
-
-			if(target!=0){
-				if(Math.abs(speed)<lowestSpeed){
-				//	System.out.println("Adjusting speed!");
-					if(speed<0){
-						driveSpd(-lowestSpeed,lowestSpeed);
-					}else if(speed>0){
-						driveSpd(lowestSpeed,-lowestSpeed);
-					}
-				}else{
-					driveSpd(speed, -speed);
-				}
-			}
-			else{
-				//System.out.println("Target is perfect or it's not connected");
-				running = false;
-			}
-
-			if(target >= -bounds && target <= bounds){
-				driveSpd(0,0);
-				//limelight.setLED(false);
-				running = false;
-				//System.out.println("Withing threshold; exiting loop");
-			}
-
-		}
-	}
-
-	public void holdLimeTurn(){
-		double absTX = limelight.getTX()/30;
-		driveSpd(absTX, -absTX);
-		driveSpd(0,0);
-	}
-
-	public double getTX(){
-		return limelight.getTX();
-	}
-
-	public double getTA(){
-		return limelight.getTA();
-	}
-
-	
-
-	public double getFinalLimelightAngle(){
-		System.out.println(limelight.getTargetAngle());
-		return limelight.getTargetAngle();
-	}
-
-	public void setLimelightLED(boolean lightOn){
-		//System.out.println("turning on");
-		limelight.setLED(lightOn);
-	}
-
+    
+    
 }
