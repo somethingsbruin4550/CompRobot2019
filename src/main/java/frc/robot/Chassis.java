@@ -2,10 +2,10 @@ package frc.robot;
 
 import frc.parent.*;
 import frc.sensors.LemonLight;
-import edu.wpi.first.wpilibj.Encoder;
-import com.kauailabs.navx.frc.AHRS;
-import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.Timer;
+// import edu.wpi.first.wpilibj.Encoder;
+// import com.kauailabs.navx.frc.AHRS;
+// import edu.wpi.first.wpilibj.SPI;
+// import edu.wpi.first.wpilibj.Timer;
 // import edu.wpi.first.networktables.NetworkTable;
 // import edu.wpi.first.networktables.NetworkTableEntry;
 // import edu.wpi.first.networktables.NetworkTableInstance;
@@ -16,10 +16,10 @@ public class Chassis implements RobotMap{
 
     //Talon objects for the wheels
     //These control the main 4 motors on the robot
-    public static CCTalon fLeft = new CCTalon(RobotMap.FORWARD_LEFT, false);
-    public static CCTalon fRight = new CCTalon(RobotMap.FORWARD_RIGHT, true);
-    public static CCTalon bLeft = new CCTalon(RobotMap.BACK_LEFT, false);
-    public static CCTalon bRight = new CCTalon(RobotMap.BACK_RIGHT, true);
+    public static CCTalon fLeft = new CCTalon(RobotMap.FORWARD_LEFT, true);
+    public static CCTalon fRight = new CCTalon(RobotMap.FORWARD_RIGHT, false);
+    public static CCTalon bLeft = new CCTalon(RobotMap.BACK_LEFT, true);
+    public static CCTalon bRight = new CCTalon(RobotMap.BACK_RIGHT, false);
 
     //Talon objects for the Sensors 
     //Ecoders measure rotations of the wheel
