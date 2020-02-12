@@ -35,10 +35,7 @@ public class Robot extends TimedRobot implements RobotMap, ControMap {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-
   private static int alliance;
-  
-  Trajectory trajectory;
 
   // Intake intake;
   // Climber climber;
@@ -50,8 +47,9 @@ public class Robot extends TimedRobot implements RobotMap, ControMap {
   @Override
   public void robotInit() {
 
+    OI.createJoystick();
+
     try{
-      trajectory = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/Unnamed.wpilib.json"));
     }catch(Exception e){
       //
     } 
@@ -142,24 +140,34 @@ public class Robot extends TimedRobot implements RobotMap, ControMap {
   @Override
   public void teleopPeriodic() {
 
-    Chassis.axisDrive(OI.normalize(OI.axis(PilotMap.Y_AXIS), -1.0, 1.0), 
-                          -OI.normalize(OI.axis(PilotMap.X_AXIS), -1.0, 1.0));
-        
+    //Chassis.driveSpd(OI.normalize(OI.axis(PilotMap.Y_AXIS, 0), -1, 1), OI.normalize(OI.axis(PilotMap.Y_AXIS, 1), -1, 1));
 
+    Chassis.axisDrive(OI.normalize(OI.axis(PilotMap.Y_AXIS, 0), -1, 1), OI.normalize(-OI.axis(PilotMap.X_AXIS, 1), -1, 1));
 
     final double elevatorSpd = 0.5;
-    if(OI.button(PilotMap.STICK_MID))
+    if(OI.axis(ControMap.RT, 2) > 0.01)
     {
-      Elevator.set(elevatorSpd);
+      Elevator.set(OI.axis(ControMap.RT, 2));
     }
-    else if(OI.button(PilotMap.STICK_BACK))
+    else if(OI.axis(ControMap.LT, 2) > 0.01)
     {
-      Elevator.set(-elevatorSpd);
+      Elevator.set(-OI.axis(ControMap.LT, 2));
     }
     else
     {
       Elevator.set(0.0);
     }
+
+    final double intakeSpd = 1.0;
+
+    if(OI.button(ControMap.A_BUTTON, 2)){
+      Intake.setIntake(intakeSpd);
+    } else if(OI.button(ControMap.Y_BUTTON, 2)){
+      Intake.setOuttake(intakeSpd);
+    } else {
+      Intake.setIntake(0);
+    }
+
 
   }
 
